@@ -86,8 +86,8 @@ namespace hn.AutoSyncLib.Common
 
             var pis = t.GetProperties().ToList();
 
-            var tableAttr = t.GetCustomAttributesData().FirstOrDefault(p => p.GetType() == typeof(TableAttribute));
-            var tableName = tableAttr.ConstructorArguments.First().Value;
+            var tableAttr = t.GetCustomAttributes(true).FirstOrDefault(p => p.GetType() == typeof(TableAttribute)) as TableAttribute;
+            var tableName = tableAttr.Name;
 
             var strbuilder = new StringBuilder();
             strbuilder.AppendFormat("INSERT INTO {0} ", tableName);
@@ -99,11 +99,9 @@ namespace hn.AutoSyncLib.Common
             {
                 string fieldName = p.Name;
 
-                var column = p.GetCustomAttributesData().SingleOrDefault(o => o.GetType() == typeof(ColumnAttribute));
-
-                if (column != null)
+                if (p.GetCustomAttributes(true).SingleOrDefault(o => o.GetType() == typeof(ColumnAttribute)) is ColumnAttribute column)
                 {
-                    fieldName = column.ConstructorArguments.First().Value.ToString();
+                    fieldName = column.Name;
                 }
 
                 fields += fieldName;
@@ -134,8 +132,8 @@ namespace hn.AutoSyncLib.Common
 
             var pis = t.GetProperties().ToList();
 
-            var tableAttr = t.GetCustomAttributesData().FirstOrDefault(p => p.GetType() == typeof(TableAttribute));
-            var tableName = tableAttr.ConstructorArguments.First().Value;
+            var tableAttr = t.GetCustomAttributes(true).FirstOrDefault(p => p.GetType() == typeof(TableAttribute)) as TableAttribute;
+            var tableName = tableAttr.Name;
 
             var strbuilder = new StringBuilder();
             strbuilder.AppendFormat("UPDATE {0} SET ", tableName);
@@ -146,11 +144,9 @@ namespace hn.AutoSyncLib.Common
             {
                 string fieldName = p.Name;
 
-                var column = p.GetCustomAttributesData().SingleOrDefault(o => o.GetType() == typeof(ColumnAttribute));
-
-                if (column != null)
+                if (p.GetCustomAttributes(true).SingleOrDefault(o => o.GetType() == typeof(ColumnAttribute)) is ColumnAttribute column)
                 {
-                    fieldName = column.ConstructorArguments.First().Value.ToString();
+                    fieldName =  column.Name;
                 }
 
                 fields += fieldName + "=:" + fieldName;
@@ -270,7 +266,7 @@ namespace hn.AutoSyncLib.Common
 
             var pis = t.GetProperties().ToList();
 
-            var tableAttr =(TableAttribute) t.GetCustomAttributes(true).FirstOrDefault(p => p.GetType() == typeof(TableAttribute));
+            var tableAttr = t.GetCustomAttributes(true).FirstOrDefault(p => p.GetType() == typeof(TableAttribute)) as TableAttribute;
             var tableName = tableAttr.Name;
 
             string sql = string.Format("DELETE FROM {0} WHERE 1=1 {1}", tableName, where);
