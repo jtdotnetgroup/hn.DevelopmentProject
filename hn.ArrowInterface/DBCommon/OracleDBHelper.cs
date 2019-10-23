@@ -266,16 +266,12 @@ namespace hn.AutoSyncLib.Common
 
         public int Delete<T>(string where)
         {
-
-
             var t = typeof(T);
 
             var pis = t.GetProperties().ToList();
 
-            var tableAttr = t.GetCustomAttributesData().FirstOrDefault(p => p.GetType() == typeof(TableAttribute));
-            var tableName = tableAttr.ConstructorArguments.First().Value;
-
-            LogHelper.LogInfo($"清除{tableName}全表");
+            var tableAttr =(TableAttribute) t.GetCustomAttributes(true).FirstOrDefault(p => p.GetType() == typeof(TableAttribute));
+            var tableName = tableAttr.Name;
 
             string sql = string.Format("DELETE FROM {0} WHERE 1=1 {1}", tableName, where);
 

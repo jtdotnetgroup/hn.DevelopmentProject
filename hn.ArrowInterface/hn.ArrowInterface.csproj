@@ -85,6 +85,7 @@
     <Compile Include="Entities\AbsRequestResult.cs" />
     <Compile Include="Entities\AuthorizationToken.cs" />
     <Compile Include="Entities\QuerylHInventoryPageResult.cs" />
+    <Compile Include="Entities\QueryPolicy.cs" />
     <Compile Include="Entities\QueryProdPageResult.cs" />
     <Compile Include="Entities\RequestRecord.cs" />
     <Compile Include="GlobParams.cs" />

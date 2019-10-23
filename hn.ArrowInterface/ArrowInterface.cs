@@ -9,6 +9,10 @@ namespace hn.ArrowInterface
 {
     public class ArrowInterface:AbsBaseRequest
     {
+        /// <summary>
+        /// 登录接口
+        /// </summary>
+        /// <returns></returns>
         public AutorizationTokenDTO GetToken()
         {
             string url = GlobParams.ApiLogin;
@@ -22,6 +26,11 @@ namespace hn.ArrowInterface
             return BaseRequest<AutorizationTokenDTO>(url, null, pars);
         }
 
+        /// <summary>
+        /// 库存下载接口
+        /// </summary>
+        /// <param name="token"></param>
+        /// <returns></returns>
         public AbsRequestResult<QuerylHInventoryPageResult> QueryLHInventoryPage(string token)
         {
             string url = GlobParams.QueryLHInventoryPageURL;
@@ -33,6 +42,11 @@ namespace hn.ArrowInterface
             return BaseRequest<AbsRequestResult<QuerylHInventoryPageResult>>(url, token, pars);
         }
 
+        /// <summary>
+        /// 物料下载接口
+        /// </summary>
+        /// <param name="token"></param>
+        /// <returns></returns>
         public AbsRequestResult<QueryProdPageResult> QueryProdPage(string token)
         {
             string url = GlobParams.Item_QueryProdPage;
@@ -50,6 +64,23 @@ namespace hn.ArrowInterface
             return BaseRequest<AbsRequestResult<QueryProdPageResult>>(url, token, pars);
 
         }
-        
+
+        /// <summary>
+        /// 政策下载
+        /// </summary>
+        /// <param name="token"></param>
+        /// <returns></returns>
+        public AbsRequestResult<QueryPolicy> QueryPolicy(string token)
+        {
+            string url = GlobParams.QueryPolicyList;
+            string dealerCode = ConfigurationManager.AppSettings["dealerCode"];
+
+            Dictionary<string, object> pars = new Dictionary<string, object>();
+            pars.Add("acctKey", dealerCode);
+
+            return BaseRequest<AbsRequestResult<QueryPolicy>>(url, token, pars);
+        }
+
+
     }
 }
