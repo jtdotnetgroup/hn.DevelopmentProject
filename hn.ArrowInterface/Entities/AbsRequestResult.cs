@@ -7,12 +7,18 @@ namespace hn.ArrowInterface.Entities
         public List<T> Rows { get; set; }
     }
 
+    /// <summary>
+    /// 通用字段，所有请求的返回结果均包含以下两个字段
+    /// </summary>
     public  class AbsRequestResult
     {
         public int Total { get; set; }
         public bool Success { get; set; }
     }
 
+    /// <summary>
+    /// 通用字段，所有返回结果中为多条记录的都包含以下字段
+    /// </summary>
     public class CommomPropertyObject
     {
         public string CreateBy { get; set; }

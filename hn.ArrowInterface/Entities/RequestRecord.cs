@@ -2,6 +2,7 @@
 
 namespace hn.ArrowInterface.Entities
 {
+    //记录请求信息
     public class RequestRecord
     {
         private string url;
