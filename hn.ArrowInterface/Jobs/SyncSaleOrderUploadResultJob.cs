@@ -4,9 +4,9 @@ using Newtonsoft.Json;
 
 namespace hn.ArrowInterface.Jobs
 {
-    public class SyncSaleOrderJob : AbsJob
+   public class SyncSaleOrderUploadResultJob : AbsJob, ISyncJob
     {
-        public override bool Sync()
+        public bool Sync()
         {
             var token = GetToken();
 
@@ -17,7 +17,7 @@ namespace hn.ArrowInterface.Jobs
                 foreach (var row in result.Rows)
                 {
                     try
-                    { 
+                    {
                         Helper.Insert(row);
                     }
                     catch (Exception e)
