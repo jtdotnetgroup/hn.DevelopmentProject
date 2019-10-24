@@ -85,6 +85,8 @@
     <Compile Include="Entities\AbsRequestResult.cs" />
     <Compile Include="Entities\AuthorizationToken.cs" />
     <Compile Include="Entities\IComputeFID.cs" />
+    <Compile Include="Entities\QueryObPage.cs" />
+    <Compile Include="Entities\SaleOrder.cs" />
     <Compile Include="Entities\QuerylHInventoryPageResult.cs" />
     <Compile Include="Entities\QueryPolicy.cs" />
     <Compile Include="Entities\QueryProdPageResult.cs" />
@@ -93,6 +95,8 @@
     <Compile Include="Jobs\AbsJob.cs" />
     <Compile Include="Jobs\SyncInventoryJob.cs" />
     <Compile Include="Jobs\ISyncJob.cs" />
+    <Compile Include="Jobs\SyncQueryObPageJob.cs" />
+    <Compile Include="Jobs\SyncSaleOrderJob.cs" />
     <Compile Include="Jobs\SyncPolicyJob.cs" />
     <Compile Include="Jobs\SyncProductJob.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

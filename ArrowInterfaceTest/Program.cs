@@ -76,6 +76,25 @@ namespace ArrowInterfaceTest
             Console.WriteLine("OK");
             Console.ReadKey();
         }
-
+        /// <summary>
+        /// 9  定制订单下载
+        /// </summary>
+        static void TestSaleOrderJob()
+        {
+            ISyncJob job = new SyncSaleOrderJob();
+            job.Sync();
+            Console.WriteLine("OK");
+            Console.ReadKey();
+        }
+        /// <summary>
+        /// 10  物流部开单记录下载
+        /// </summary>
+        static void TestQueryObPageJob()
+        {
+            ISyncJob job = new SyncQueryObPageJob();
+            job.Sync();
+            Console.WriteLine("OK");
+            Console.ReadKey();
+        }
     }
 }

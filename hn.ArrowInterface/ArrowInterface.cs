@@ -80,7 +80,47 @@ namespace hn.ArrowInterface
 
             return BaseRequest<AbsRequestResult<QueryPolicy>>(url, token, pars);
         }
+        /// <summary>
+        /// 定制订单下载
+        /// </summary>
+        /// <param name="token"></param>
+        /// <returns></returns>
+        public AbsRequestResult<SaleOrder> SaleOrder(string token)
+        {
+            string url = GlobParams.QueryCustomOrderPage;
+            string dealerCode = ConfigurationManager.AppSettings["dealerCode"];
 
+            Dictionary<string, object> pars = new Dictionary<string, object>(); 
+            pars.Add("attr1", dealerCode);
 
+            DateTime attr2 = DateTime.Parse("2019-03-27 10:30:28");
+            var attr3 = attr2.AddDays(30);
+
+            pars.Add("attr2", attr2.ToString("yyyy-MM-dd HH:mm:ss"));
+            pars.Add("attr3", attr3.ToString("yyyy-MM-dd HH:mm:ss"));
+
+            return BaseRequest<AbsRequestResult<SaleOrder>>(url, token, pars);
+        }
+        /// <summary>
+        /// 物流部开单记录下载
+        /// </summary>
+        /// <param name="token"></param>
+        /// <returns></returns>
+        public AbsRequestResult<QueryObPage> QueryObPage(string token)
+        {
+            string url = GlobParams.QueryCustomOrderPage;
+            string dealerCode = ConfigurationManager.AppSettings["dealerCode"];
+
+            Dictionary<string, object> pars = new Dictionary<string, object>();
+            pars.Add("attr1", dealerCode);
+
+            DateTime attr2 = DateTime.Parse("2019-03-27 10:30:28");
+            var attr3 = attr2.AddDays(30);
+
+            pars.Add("attr2", attr2.ToString("yyyy-MM-dd HH:mm:ss"));
+            pars.Add("attr3", attr3.ToString("yyyy-MM-dd HH:mm:ss"));
+
+            return BaseRequest<AbsRequestResult<QueryObPage>>(url, token, pars);
+        }
     }
 }
