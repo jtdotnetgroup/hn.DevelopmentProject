@@ -4,6 +4,7 @@ using System.Configuration;
 using System.Runtime.InteropServices;
 using hn.ArrowInterface.Entities;
 using hn.ArrowInterface.WebCommon;
+using hn.ArrowInterface.Helper;
 
 namespace hn.ArrowInterface
 {
@@ -81,7 +82,7 @@ namespace hn.ArrowInterface
             return BaseRequest<AbsRequestResult<QueryPolicy>>(url, token, pars);
         }
         /// <summary>
-        /// 定制订单下载
+        /// 9、定制订单下载
         /// </summary>
         /// <param name="token"></param>
         /// <returns></returns>
@@ -102,7 +103,7 @@ namespace hn.ArrowInterface
             return BaseRequest<AbsRequestResult<SaleOrder>>(url, token, pars);
         }
         /// <summary>
-        /// 物流部开单记录下载
+        /// 10、物流部开单记录下载
         /// </summary>
         /// <param name="token"></param>
         /// <returns></returns>
@@ -122,5 +123,70 @@ namespace hn.ArrowInterface
 
             return BaseRequest<AbsRequestResult<QueryObPage>>(url, token, pars);
         }
+        /// <summary>
+        /// 7、销售订单上传
+        /// </summary>
+        /// <param name="token"></param>
+        /// <returns></returns>
+        public AbsRequestResult<SaleOrderUploadResult> SaleOrderUpload(string token)
+        {
+
+            Dictionary<string, object> pars = new Dictionary<string, object>();
+
+            SaleOrderUpload saleOrderUpload = new SaleOrderUpload()
+            {
+                orderType = "",
+                acctCode = "",
+                tradeCompanyName = "",
+                billIdName = "",
+                salesChannel = "",
+                lHbuType = "",
+                contractWay = "",
+                orderProdLine = "",
+                balanceName = "",
+                lHexpectedArrivedDate = DateTime.Now,
+                lHdepositOrNot = "",
+                lHdiscountType = "",
+                lHorgName = "",
+                submissionDate = DateTime.Now,
+                source = "",
+                lHOutSystemID = "",
+                lHOutSystemOd = "",
+                lHpromotionPolicyID = "",
+                remarks = "",
+                consignee = "",
+                lHoutboundOrder = "",
+                lHAdvertingMoneyType = "",
+                saleOrderItemList = new SaleOrderUploadDetailed[] {
+                    new SaleOrderUploadDetailed {
+                        prodCode = "",
+                        qTY = 0,
+                        lHrowSource = "",
+                        lHOutSystemID = "",
+                        lHOutSystemLineID = "",
+                        lHcomments = "",
+                        lHDctpolicyItemId = ""
+                    }
+                }
+            };
+            pars = saleOrderUpload.ObjectToMap();
+
+            return BaseRequest<AbsRequestResult<SaleOrderUploadResult>>(GlobParams.SaleSaleUpload, token, pars);
+        }
+        /// <summary>
+        /// 8、审核状态回传
+        /// </summary>
+        /// <param name="token"></param>
+        /// <returns></returns>
+        public AbsRequestResult<AcctOAStatus> AcctOAStatus(string token)
+        {
+            string dealerCode = ConfigurationManager.AppSettings["dealerCode"];
+            Dictionary<string, object> pars = new Dictionary<string, object>(); 
+            pars.Add("acctCode", dealerCode); 
+            pars.Add("idStrings", ""); 
+
+            return BaseRequest<AbsRequestResult<AcctOAStatus>>(GlobParams.QueryAcctOAStatus, token, pars);
+        }
+        
     }
 }

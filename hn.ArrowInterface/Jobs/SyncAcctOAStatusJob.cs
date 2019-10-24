@@ -4,20 +4,20 @@ using Newtonsoft.Json;
 
 namespace hn.ArrowInterface.Jobs
 {
-    public class SyncSaleOrderJob : AbsJob, ISyncJob
+    public class SyncAcctOAStatusJob : AbsJob, ISyncJob
     {
         public bool Sync()
         {
             var token = GetToken();
 
-            var result = Interface.SaleOrderUpload(token.Token);
+            var result = Interface.AcctOAStatus(token.Token);
 
             if (result.Success)
             {
                 foreach (var row in result.Rows)
                 {
                     try
-                    { 
+                    {
                         Helper.Insert(row);
                     }
                     catch (Exception e)
@@ -33,5 +33,5 @@ namespace hn.ArrowInterface.Jobs
 
             return false;
         }
-    }
+    } 
 }
