@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 using System.Data;
 using System.Data.Common;
@@ -106,7 +107,7 @@ namespace hn.AutoSyncLib.Common
 
                 fields += fieldName;
 
-                values += ":" + fieldName;
+                values += ":" + p.Name;
 
                 if (p == pis.Last())
                 {
@@ -344,7 +345,20 @@ namespace hn.AutoSyncLib.Common
                 {
                     //这里假设字段名和数据库列名是一 一对应
                     //可能通过字段名与列名进行比较，相同则进行取值赋值操作
-                    PropertyInfo pi = pisInfos.FirstOrDefault(p => p.Name == col.ColumnName);
+                    PropertyInfo pi = pisInfos.FirstOrDefault(p =>
+                    {
+                        if (p.Name.ToUpper() == col.ColumnName.ToUpper())
+                        {
+                            return true;
+                        }
+                        //如果列名与字段不是一一对应的，则反身字段Column特，获取Column的Name值与列名进行比较
+                        var  attr =
+                            p.GetCustomAttributes(true).FirstOrDefault(f => f.GetType() == typeof(ColumnAttribute)) as
+                                ColumnAttribute;
+
+                        return attr!=null&&attr.Name.ToUpper() == col.ColumnName.ToUpper();
+
+                    });
                     if (pi != null)
                     {
                         object value = row[col.ColumnName];
@@ -429,6 +443,63 @@ namespace hn.AutoSyncLib.Common
                 LogHelper.LogInfo("SQL:"+sql);
                 throw;
             }
+        }
+
+        public string GetSelectSql<T>()
+        {
+            var t = typeof(T);
+            var tableAttr = t.GetCustomAttributes(true).FirstOrDefault(p => p.GetType() == typeof(TableAttribute)) as TableAttribute;
+            string tableName = tableAttr.Name;
+
+            StringBuilder builder = new StringBuilder();
+            builder.Append("SELECT * FROM ");
+            builder.Append(tableName);
+            builder.Append(" Where 1=1");
+
+            return builder.ToString();
+        }
+
+        public T Get<T>(object id) where  T:new()
+        {
+            if(conn.State == ConnectionState.Closed)
+            {
+                conn.Open();
+            }
+            var cmd = factory.CreateCommand();
+            string sql = GetSelectSql<T>();
+            var t = typeof(T);
+            var pis = t.GetProperties();
+
+            string keyFieldName="";
+
+            foreach (var pi in pis)
+            {
+                var keyAttr= pi.GetCustomAttributes(true).FirstOrDefault(p => p.GetType() == typeof(KeyAttribute));
+
+                if (keyAttr != null)
+                {
+                    keyFieldName = pi.Name;
+                    break;
+                }
+            }
+
+            if (string.IsNullOrEmpty(keyFieldName))
+            {
+                throw new ArgumentException(string.Format("{0}类未指定Key字段", t.Name));
+            }
+
+            sql+=" AND {0}="+id.ToString();
+
+            var result = Select<T>(sql).FirstOrDefault();
+
+            return result;
+
+        }
+
+        public List<T> GetAll<T>() where T:new()
+        {
+            string sql = GetSelectSql<T>();
+            return Select<T>(sql);
         }
     }
 }

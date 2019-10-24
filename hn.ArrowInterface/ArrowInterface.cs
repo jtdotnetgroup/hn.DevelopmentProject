@@ -13,7 +13,7 @@ namespace hn.ArrowInterface
         /// 登录接口
         /// </summary>
         /// <returns></returns>
-        public AutorizationTokenDTO GetToken()
+        public AuthorizationToken GetToken()
         {
             string url = GlobParams.ApiLogin;
             string username = ConfigurationManager.AppSettings["username"];
@@ -23,7 +23,7 @@ namespace hn.ArrowInterface
             pars.Add("username",username);
             pars.Add("password",password);
 
-            return BaseRequest<AutorizationTokenDTO>(url, null, pars);
+            return BaseRequest<AuthorizationToken>(url, null, pars);
         }
 
         /// <summary>

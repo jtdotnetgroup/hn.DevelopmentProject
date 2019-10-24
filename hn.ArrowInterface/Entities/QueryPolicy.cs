@@ -1,5 +1,8 @@
-﻿namespace hn.ArrowInterface.Entities
+﻿using System.ComponentModel.DataAnnotations.Schema;
+
+namespace hn.ArrowInterface.Entities
 {
+    [Table("LH_Policy")]
     public class QueryPolicy
     {
         public string HeadId { get; set; }

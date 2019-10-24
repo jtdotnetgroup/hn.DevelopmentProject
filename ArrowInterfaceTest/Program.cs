@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text;
 using hn.ArrowInterface;
 using hn.ArrowInterface.Entities;
+using hn.ArrowInterface.Jobs;
 using hn.AutoSyncLib.Common;
 
 namespace ArrowInterfaceTest
@@ -13,7 +14,7 @@ namespace ArrowInterfaceTest
         static ArrowInterface iInterface = new ArrowInterface();
         static void Main(string[] args)
         {
-            TestDelete();
+            TestPolicyJob();
             
         }
 
@@ -51,6 +52,29 @@ namespace ArrowInterfaceTest
 
             helper.Delete<AuthorizationToken>("");
 
+        }
+
+        static void TestInventoryJob()
+        {
+            ISyncJob job=new SyncInventoryJob();
+            job.Sync();
+             Console.WriteLine("OK");
+        }
+
+        static void TestProductJob()
+        {
+            ISyncJob job=new SyncProductJob();
+            job.Sync();
+            Console.WriteLine("OK");
+            Console.ReadKey();
+        }
+
+        static void TestPolicyJob()
+        {
+            ISyncJob job=new SyncPolicyJob();
+            job.Sync();
+            Console.WriteLine("OK");
+            Console.ReadKey();
         }
 
     }

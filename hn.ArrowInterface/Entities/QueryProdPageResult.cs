@@ -1,14 +1,19 @@
-﻿namespace hn.ArrowInterface.Entities
+﻿using System;
+using System.ComponentModel.DataAnnotations.Schema;
+using hn.AutoSyncLib.Model;
+
+namespace hn.ArrowInterface.Entities
 {
-    public class QueryProdPageResult:CommomPropertyObject
+    [Table("LH_PRODUCT")]
+    public class QueryProdPageResult:IComputeFID
     {
         private string prodCode;
         private string prodName;
-        private string prodMatSeries;
+        //private string prodMatSeries;
         private decimal prodVolume;
-        private string comments;
-        private string deptId;
-        private string deptName;
+        //private string comments;
+        //private string deptId;
+        //private string deptName;
         private string lHprodLine;
         private string lHprodStatus;
         private string lHprodModel;
@@ -16,6 +21,9 @@
         private string lHprodType1;
         private string lHprodType2;
         private string lHprodSign;
+        public DateTime LastUpdate { get; set; }
+
+        public string FID { get; set; }
 
         public string ProdCode
         {
@@ -29,11 +37,11 @@
             set => prodName = value;
         }
 
-        public string ProdMatSeries
-        {
-            get => prodMatSeries;
-            set => prodMatSeries = value;
-        }
+        //public string ProdMatSeries
+        //{
+        //    get => prodMatSeries;
+        //    set => prodMatSeries = value;
+        //}
 
         public decimal ProdVolume
         {
@@ -41,23 +49,23 @@
             set => prodVolume = value;
         }
 
-        public string Comments
-        {
-            get => comments;
-            set => comments = value;
-        }
+        //public string Comments
+        //{
+        //    get => comments;
+        //    set => comments = value;
+        //}
 
-        public string DeptId
-        {
-            get => deptId;
-            set => deptId = value;
-        }
+        //public string DeptId
+        //{
+        //    get => deptId;
+        //    set => deptId = value;
+        //}
 
-        public string DeptName
-        {
-            get => deptName;
-            set => deptName = value;
-        }
+        //public string DeptName
+        //{
+        //    get => deptName;
+        //    set => deptName = value;
+        //}
 
         public string LHprodLine
         {
@@ -65,12 +73,14 @@
             set => lHprodLine = value;
         }
 
+        [Column("ProdStatus")]
         public string LHprodStatus
         {
             get => lHprodStatus;
             set => lHprodStatus = value;
         }
 
+        [Column("prodModel")]
         public string LHprodModel
         {
             get => lHprodModel;
@@ -99,6 +109,11 @@
         {
             get => lHprodSign;
             set => lHprodSign = value;
+        }
+
+        public void ComputeFID()
+        {
+            throw new System.NotImplementedException();
         }
     }
 }
