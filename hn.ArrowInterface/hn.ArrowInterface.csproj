@@ -84,6 +84,8 @@
     <Compile Include="DBCommon\OracleDBHelper.cs" />
     <Compile Include="Entities\AbsRequestResult.cs" />
     <Compile Include="Entities\AuthorizationToken.cs" />
+    <Compile Include="Entities\HnInventoryBatchInsertEntity.cs" />
+    <Compile Include="Entities\HnObOrderBatchInsertEntity.cs" />
     <Compile Include="Entities\IComputeFID.cs" />
     <Compile Include="Entities\QuerylHInventoryPageResult.cs" />
     <Compile Include="Entities\QueryPolicy.cs" />
@@ -96,7 +98,6 @@
     <Compile Include="Jobs\SyncPolicyJob.cs" />
     <Compile Include="Jobs\SyncProductJob.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="WebCommon\AbstractRequestParams.cs" />
     <Compile Include="WebCommon\AbsBaseRequest.cs" />
   </ItemGroup>
   <ItemGroup>

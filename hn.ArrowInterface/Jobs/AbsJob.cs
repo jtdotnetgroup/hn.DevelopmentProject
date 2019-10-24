@@ -6,7 +6,7 @@ using hn.AutoSyncLib.Common;
 
 namespace hn.ArrowInterface.Jobs
 {
-    public abstract class AbsJob
+    public abstract class AbsJob:ISyncJob
     {
         protected ArrowInterface Interface { get; set; }
         protected  OracleDBHelper Helper { get; set; }
@@ -44,5 +44,7 @@ namespace hn.ArrowInterface.Jobs
 
             return token;
         }
+
+        public abstract bool Sync();
     }
 }

@@ -81,6 +81,21 @@ namespace hn.ArrowInterface
             return BaseRequest<AbsRequestResult<QueryPolicy>>(url, token, pars);
         }
 
+        /// <summary>
+        /// 华耐日销出库下载
+        /// </summary>
+        /// <param name="token"></param>
+        /// <param name="data">上传的日销出库数据</param>
+        /// <returns></returns>
+        public AbsRequestResult HnInventoryBatchInsert(string token, List<HnInventoryBatchInsertEntity> data)
+        {
+            string url = GlobParams.Inventory_BatchInsertURL;
+            Dictionary<string, object> pars = new Dictionary<string, object>();
+            pars.Add("",data);
+
+            return BaseRequest<AbsRequestResult>(url, token, pars);
+        }
+
 
     }
 }
