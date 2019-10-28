@@ -5,6 +5,7 @@ using System.Runtime.InteropServices;
 using hn.ArrowInterface.Entities;
 using hn.ArrowInterface.WebCommon;
 using hn.ArrowInterface.Helper;
+using Newtonsoft.Json;
 
 namespace hn.ArrowInterface
 {
@@ -198,10 +199,24 @@ namespace hn.ArrowInterface
         public AbsRequestResult HnInventoryBatchInsert(string token, List<HnInventoryBatchInsertEntity> data)
         {
             string url = GlobParams.Inventory_BatchInsertURL;
-            Dictionary<string, object> pars = new Dictionary<string, object>();
-            pars.Add("",data);
+            string json = JsonConvert.SerializeObject(data);
 
-            return BaseRequest<AbsRequestResult>(url, token, pars);
+            return BaseRequest<AbsRequestResult>(url, token, json);
+        }
+
+        /// <summary>
+        /// 四、	库存结存数据下载
+        /// </summary>
+        /// <param name="token"></param>
+        /// <param name="data"></param>
+        /// <returns></returns>
+        public AbsRequestResult HnObOrderDayBatchInsert(string token, List<HnObOrderBatchInsertEntityDto> data)
+        {
+            string url = GlobParams.ObOrderDay_BatchInsertURL;
+
+            string json = JsonConvert.SerializeObject(data);
+
+            return BaseRequest<AbsRequestResult>(url, token, json);
         }
 
             

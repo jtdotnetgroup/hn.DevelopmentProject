@@ -1,4 +1,6 @@
-﻿namespace hn.ArrowInterface.Entities
+﻿using System.ComponentModel.DataAnnotations.Schema;
+
+namespace hn.ArrowInterface.Entities
 {
     public class HnInventoryBatchInsertEntity
     {

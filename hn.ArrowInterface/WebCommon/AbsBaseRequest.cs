@@ -56,5 +56,17 @@ namespace hn.ArrowInterface.WebCommon
             return result;
 
         }
+
+        public T BaseRequest<T>(string url, string token, string json)
+        {
+            HttpContent content = new StringContent(json, Encoding.UTF8, "application/json");
+
+            client.DefaultRequestHeaders.Authorization = AuthenticationHeaderValue.Parse("bearer " + token);
+
+            var res = client.PostAsync(url, content).Result;
+            var result = JsonConvert.DeserializeObject<T>(res.Content.ReadAsStringAsync().Result);
+
+            return result;
+        }
     }
 }

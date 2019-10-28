@@ -45,9 +45,9 @@ namespace hn.AutoSyncLib
 
                         parJson = JsonConvert.SerializeObject(pars);
 
-                        var result =
+                        var result =await 
                             Request<MC_PickUpGoods_Result, MC_PickUpGoods_Params, MC_PickUpGoods_ResultInfo>(
-                                pars).Result;
+                                pars);
 
                         total = result.TotalCount;
 
@@ -226,7 +226,7 @@ namespace hn.AutoSyncLib
 
             //var result = await RequestAndWriteData(token, startDate, endDate, pageSize);
 
-            var result = RequestDataWithMultiThreading(token, startDate, endDate).Result;
+            var result =await RequestAndWriteData(token, startDate, endDate);
 
             Call_MN_THD_Update();
 

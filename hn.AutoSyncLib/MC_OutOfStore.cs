@@ -124,7 +124,7 @@ namespace hn.AutoSyncLib
 
             int pageindex = 1;
 
-            return await RequestDataWithMultiThreading(token, startDate, endDate, pageSize);
+            return await RequestAndWriteData(token, startDate, endDate, pageSize);
 
         }
 

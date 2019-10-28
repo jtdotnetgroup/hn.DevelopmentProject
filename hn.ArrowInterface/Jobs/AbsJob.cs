@@ -1,8 +1,10 @@
 ﻿using System;
 using System.Configuration;
 using System.Linq;
+using System.Threading.Tasks;
 using hn.ArrowInterface.Entities;
 using hn.AutoSyncLib.Common;
+using Quartz;
 
 namespace hn.ArrowInterface.Jobs
 {
@@ -30,8 +32,9 @@ namespace hn.ArrowInterface.Jobs
                 {
                     //过期重新获取Token并更新数据库值
                     var newtoken = Interface.GetToken();
-                    token.Token = newtoken.Token;
-                    Helper.Update(token, string.Format(" AND TokenValue='{0}'",token.Token));
+                    newtoken.ExpiredTime=DateTime.Now.AddHours(2);
+                    //token.Token = newtoken.Token;
+                    Helper.Update(newtoken, string.Format(" AND TokenValue='{0}'",token.Token));
                 }
 
                 return token;
@@ -46,5 +49,6 @@ namespace hn.ArrowInterface.Jobs
         }
 
         public abstract bool Sync();
+        
     }
 }
