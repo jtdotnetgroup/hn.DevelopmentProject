@@ -1,21 +1,23 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 using System.Security.Cryptography;
 using System.Text;
 
 namespace hn.AutoSyncLib.Model
 {
-    public class MC_PickUpGoods_Result:MC_Request_BaseResult<MC_PickUpGoods_ResultInfo>
+    public class MC_PickUpGoods_Result : MC_Request_BaseResult<MC_PickUpGoods_ResultInfo>
     {
         //public List<MC_PickUpGoods_ResultInfo> resultInfo { get; set; }
     }
 
     [Table("MN_THD")]
-    public class MC_PickUpGoods_ResultInfo
+    public class MC_PickUpGoods_ResultInfo : IComputeFID, IFID
     {
         [Column("TPACKAGE")]
         public string package { get; set; }
+        [Key]
         public string autoId { get; set; }//
         public string pzhm { get; set; }//
         public string pjhm { get; set; }//
@@ -41,6 +43,10 @@ namespace hn.AutoSyncLib.Model
         public int DB { get; set; }//
         public string dhno { get; set; }
 
+        public string cyr { get; set; }
+        public string dz { get; set; }
+        public string pzlb { get; set; }
+
         public void ComputeFID()
         {
             var h256 = SHA256.Create();
@@ -53,6 +59,13 @@ namespace hn.AutoSyncLib.Model
             string fid = BitConverter.ToString(has).Replace("-", "");
 
             autoId = fid;
+        }
+
+        [NotMapped]
+        public string FID
+        {
+            get => autoId;
+            set => autoId = value;
         }
     }
 }

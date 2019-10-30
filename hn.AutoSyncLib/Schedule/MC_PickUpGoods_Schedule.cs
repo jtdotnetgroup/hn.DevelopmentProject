@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.Configuration;
 using System.Threading.Tasks;
 using hn.AutoSyncLib.Jobs;
 using hn.AutoSyncLib.Model;
@@ -15,52 +16,61 @@ namespace hn.AutoSyncLib.Schedule
 {
     public class MC_PickUpGoods_Schedule
     {
-        public static async  Task Start()
+        static ISchedulerFactory factory = new StdSchedulerFactory();
+        /// <summary>
+        /// 此方法为每天12：30运行一次，清空全表
+        /// </summary>
+        /// <returns></returns>
+        public static async Task StartEveryDayTask()
         {
-            ISchedulerFactory factory=new StdSchedulerFactory();
+
+            var actionTime = ConfigurationManager.AppSettings["MC_PickupGoods"];
+            var hour = Convert.ToInt32(actionTime.Split(':')[0]);
+            var min = Convert.ToInt32(actionTime.Split(':')[1]);
+
             var scheduler = factory.GetScheduler().Result;
 
-           await scheduler.Start();
+            await scheduler.Start();
 
-            var job = JobBuilder.Create<MC_PickUpGoods_SyncJob>()
-                .WithIdentity("identtiy","group2")
+            var job1 = JobBuilder.Create<MC_PickUpGoodsWithClearTable_SyncJob>()
+                .WithIdentity("MC_PickUpGoods", "MC_PickUpGoods_group1")
                 .Build();
+
 
             var trigger = TriggerBuilder.Create()
                 .StartNow()
-                .WithIdentity("trigg","group2")
-                .WithSimpleSchedule(b => b.WithIntervalInHours(1).RepeatForever())
+                .WithIdentity("trigg", "group1")
+                .WithSchedule(CronScheduleBuilder.DailyAtHourAndMinute(hour, min))
                 .Build();
 
+            await scheduler.ScheduleJob(job1, trigger);
 
+
+
+        }
+
+        /// <summary>
+        /// 此方法为每小时同步一次，不清全表
+        /// </summary>
+        /// <returns></returns>
+        public static async Task StartTodaySync()
+        {
+            IScheduler scheduler = factory.GetScheduler().Result;
+
+            await scheduler.Start();
+
+            var job = JobBuilder.Create<MC_PickUpGoods_SyncJob>()
+                .WithIdentity("MC_PickUpGoods_Job", "MC_PickUpGoods_group1")
+                .Build();
+
+            var trigger = TriggerBuilder.Create()
+                .WithIdentity("MC_PickUpGoods_trigger", "MC_PickUpGoods_group1")
+                .WithSimpleSchedule(b => b.WithIntervalInHours(1))
+                .Build();
 
             await scheduler.ScheduleJob(job, trigger);
 
         }
 
-        public static async Task SyncData<T>(string rq1, string rq2,string identity="identity",string group="PickUpGoods")
-        where T:IJob
-        {
-            ISchedulerFactory factory=new StdSchedulerFactory();
-            var schheduler = factory.GetScheduler().Result;
-
-            await schheduler.Start();
-
-            var job = JobBuilder.Create<T>()
-                .WithIdentity(identity, group)
-                .UsingJobData("rq1",rq1)
-                .UsingJobData("rq2",rq2)
-                .Build();
-
-            var trigger = TriggerBuilder.Create()
-                .StartNow()
-                .WithIdentity("PickUpGoodstrigger", group)
-                .Build();
-
-           await schheduler.ScheduleJob(job, trigger);
-
-        }
-
-        
     }
 }

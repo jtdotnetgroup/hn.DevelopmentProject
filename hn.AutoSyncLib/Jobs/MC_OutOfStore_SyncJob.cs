@@ -19,11 +19,7 @@ namespace hn.AutoSyncLib.Jobs
 
             LogHelper.LogInfo("出仓单开始同步");
 
-            await Console.Out.WriteLineAsync("出仓单开始同步");
-
-            await mc_outofstore.ClearTable();
-
-            await mc_outofstore.SyncData_EveryDate(token);
+            await mc_outofstore.SyncData_Today(token);
         }
 
        

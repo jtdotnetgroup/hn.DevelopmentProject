@@ -191,7 +191,51 @@ namespace hn.AutoSyncLib.Common
 
         }
 
-        
+        public bool Update<T>(T obj)
+        {
+            var t = typeof(T);
+            var pis = t.GetProperties();
+
+            string keyFieldName = "";
+
+            foreach (var pi in pis)
+            {
+                var keyAttr = pi.GetCustomAttributes(true).Count(p=>p is KeyAttribute)==1;
+                if (keyAttr)
+                {
+                    keyFieldName = pi.Name;
+                    break;
+                }
+            }
+
+            if (string.IsNullOrEmpty(keyFieldName))
+            {
+                throw new ArgumentException(string.Format("{0}类未指定Key字段", t.Name));
+            }
+            string where = string.Format(" AND {0}=:{1}", keyFieldName, keyFieldName);
+            string sql = GetUpdateSql<T>(where);
+
+            var cmd = GetCommand(sql, obj);
+            cmd.Connection = conn;
+
+            try
+            {
+                if (conn.State == ConnectionState.Closed)
+                {
+                    conn.Open();
+                }
+
+                return cmd.ExecuteNonQuery() > 0;
+            }
+            catch (Exception e)
+            {
+                LogHelper.LogErr(e);
+                LogHelper.LogInfo("SQL:" + sql);
+                throw;
+            }
+
+
+        }
 
         public bool Insert<T>(T obj)
         {
@@ -477,7 +521,6 @@ namespace hn.AutoSyncLib.Common
             {
                 conn.Open();
             }
-            var cmd = factory.CreateCommand();
             string sql = GetSelectSql<T>();
             var t = typeof(T);
             var pis = t.GetProperties();
@@ -500,7 +543,7 @@ namespace hn.AutoSyncLib.Common
                 throw new ArgumentException(string.Format("{0}类未指定Key字段", t.Name));
             }
 
-            sql+=" AND {0}="+id.ToString();
+            sql+=string.Format(" AND {0}=",keyFieldName)+id.ToString();
 
             var result = Select<T>(sql).FirstOrDefault();
 

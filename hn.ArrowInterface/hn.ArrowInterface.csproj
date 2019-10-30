@@ -109,7 +109,6 @@
     <Compile Include="GlobParams.cs" />
     <Compile Include="Helper\ToolHelper.cs" />
     <Compile Include="Jobs\AbsJob.cs" />
-    <Compile Include="Jobs\MainJob.cs" />
     <Compile Include="Jobs\SyncAcctOAStatusJob.cs" />
     <Compile Include="Jobs\SyncHnObOrderDay.cs" />
     <Compile Include="Jobs\SyncInventoryDayJob.cs" />
@@ -122,8 +121,7 @@
     <Compile Include="Jobs\SyncProductJob.cs" />
     <Compile Include="Jobs\SyncSaleOrderUploadResultJob.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="Schedule\AbsSchedule.cs" />
-    <Compile Include="Schedule\HnObOrderDaySchedule.cs" />
+    <Compile Include="Schedule\SyncSchedule.cs" />
     <Compile Include="WebCommon\AbsBaseRequest.cs" />
   </ItemGroup>
   <ItemGroup>

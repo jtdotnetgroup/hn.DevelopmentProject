@@ -22,7 +22,7 @@ namespace hn.AutoSyncLib
 
         public MC_Request_BaseParams pars { get; set; }
 
-        protected  string conStr = ConfigurationManager.ConnectionStrings["DBConnection"].ConnectionString;
+        protected  string conStr = ConfigurationManager.ConnectionStrings["DBConnectionTest"].ConnectionString;
 
         protected OracleDBHelper helper { get; set; }
 
@@ -50,7 +50,39 @@ namespace hn.AutoSyncLib
             }
         }
 
+        public void WriteDataToDB<T1>(List<T1> list) where T1: IComputeFID,IFID,new()
+        {
 
+            if (list.Count > 0)
+            {
+                //并发写入
+                foreach (var row in list.AsParallel())
+                {
+                    try
+                    {
+                        row.ComputeFID();
+
+                        var item = helper.GetWhere(new T1() {FID = row.FID}).SingleOrDefault();
+
+                        if (item!=null)
+                        {
+                            helper.Update(row);
+                            continue;
+                        }
+
+                        helper.Insert(row);
+                    }
+                    catch (Exception e)
+                    {
+                        LogHelper.LogInfo("数据更新或插入失败：" + JsonConvert.SerializeObject(row));
+                        LogHelper.LogErr(e);
+                    }
+
+                }
+
+                LogHelper.LogInfo("数据写入完毕");
+            }
+        }
 
         /// <summary>
         /// 发送POST请求
@@ -119,7 +151,13 @@ namespace hn.AutoSyncLib
             return resultList;
         }
 
-       
+        public   int DeleteAllData<T1>()
+        {
+           return  helper.Delete<T1>("");
+        }
+
+
+
 
     }
 }
