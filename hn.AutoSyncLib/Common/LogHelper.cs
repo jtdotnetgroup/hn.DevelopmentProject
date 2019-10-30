@@ -12,11 +12,13 @@ namespace hn.AutoSyncLib.Common
         public static void LogInfo(string msg)
         {
             info.Info(msg);
+            Console.Out.WriteLineAsync(msg);
         }
 
         public static void LogErr(Exception ex)
         {
             error.Error(ex);
+            Console.Out.WriteLineAsync(ex.Message);
         }
     }
 }

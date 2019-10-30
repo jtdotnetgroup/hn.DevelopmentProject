@@ -6,24 +6,20 @@ using System.Threading.Tasks;
 using hn.AutoSyncLib.Common;
 using hn.AutoSyncLib.Model;
 using Newtonsoft.Json;
+using Quartz.Logging;
 
 namespace hn.AutoSyncLib
 {
     public class MC_PickUpGoods : BaseRequest<MC_PickUpGoods>, ISync
     {
+
+        
+
         public async Task<bool> RequestAndWriteData(MC_getToken_Result token, string rq1, string rq2, int pagesize = 1000, int pageindex = 1)
         {
 
             var startDate = DateTime.Parse(rq1);
             var endDate = DateTime.Parse(rq2);
-
-            //if (startDate == DateTime.Now.Date)
-            //{
-            //    await Console.Out.WriteLineAsync("时间未到提货单暂时不同步");
-            //    return false;
-            //}
-
-
 
             string parJson = "";
             const string logstr = "参数：{0}\r\n返回结果：总条数【{1}】，当前页共【{2}】条记录\r\n异常：{3}";
@@ -45,9 +41,9 @@ namespace hn.AutoSyncLib
 
                         parJson = JsonConvert.SerializeObject(pars);
 
-                        var result =
+                        var result =await 
                             Request<MC_PickUpGoods_Result, MC_PickUpGoods_Params, MC_PickUpGoods_ResultInfo>(
-                                pars).Result;
+                                pars);
 
                         total = result.TotalCount;
 
@@ -67,28 +63,8 @@ namespace hn.AutoSyncLib
                             }
                         }
                         //写入数据库
-                        if (result.resultInfo.Count > 0)
-                        {
-                            //并发写入
-                            foreach (var row in result.resultInfo.AsParallel())
-                            {
-                                row.ComputeFID();
-                                string sql = "SELECT COUNT(*) FROM MN_THD WHERE AUTOID=:AUTOID";
-                                var par = new Dictionary<string, object>();
-                                par.Add(":AUTOID", row.autoId);
-
-                                var count = helper.ExecuteScalar(sql, par);
-
-                                if (Convert.ToInt32(count) > 0)
-                                {
-                                    string where = "AND AUTOID=:AUTOID";
-                                    helper.Update(row, where);
-                                    continue;
-                                }
-
-                                helper.Insert(row);
-                            }
-                        }
+                        WriteDataToDB(result.resultInfo);
+                        
                         pageindex++;
                     } while (pageindex <= pagecount);
 
@@ -100,7 +76,7 @@ namespace hn.AutoSyncLib
             }
             catch (Exception e)
             {
-
+                LogHelper.LogErr(e);
                 return false;
             }
 
@@ -217,7 +193,7 @@ namespace hn.AutoSyncLib
             var dbdate = helper.ExecuteScalar(sql, new Dictionary<string, object>()).ToString();
 
             var startDate = string.IsNullOrEmpty(dbdate) ?
-                DateTime.Parse("2019/05/01").ToString("yyyy/MM/dd")
+                DateTime.Parse("2019/08/01").ToString("yyyy/MM/dd")
                 : DateTime.Parse(dbdate).Date.ToString("yyyy/MM/dd");
 
             var endDate = DateTime.Now.Date.AddDays(-1).ToString("yyyy/MM/dd");
@@ -226,11 +202,23 @@ namespace hn.AutoSyncLib
 
             //var result = await RequestAndWriteData(token, startDate, endDate, pageSize);
 
-            var result = RequestDataWithMultiThreading(token, startDate, endDate).Result;
+            var result =await RequestAndWriteData(token, startDate, endDate);
 
             Call_MN_THD_Update();
 
             return result;
+        }
+
+        public async Task<bool> SyncData_Today(MC_getToken_Result token)
+        {
+            int pageindex = 1;
+            var startDate = DateTime.Now.Date.ToString("yyyy/MM/dd");
+            var result = await RequestAndWriteData(token, startDate, startDate);
+
+            Call_MN_THD_Update();
+
+            return result;
+
         }
 
         public void Call_MN_THD_Update()

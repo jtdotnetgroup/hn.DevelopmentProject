@@ -1,15 +1,19 @@
 ﻿using System;
 using System.Configuration;
 using System.Linq;
+using System.Threading.Tasks;
 using hn.ArrowInterface.Entities;
 using hn.AutoSyncLib.Common;
+using Quartz;
 
 namespace hn.ArrowInterface.Jobs
 {
-    public abstract class AbsJob
+    public abstract class AbsJob:ISyncJob,IJob
     {
         protected ArrowInterface Interface { get; set; }
         protected  OracleDBHelper Helper { get; set; }
+        protected int Interval { get; set; }
+        protected string JobName { get; set; }
 
         public AbsJob()
         {
@@ -17,6 +21,12 @@ namespace hn.ArrowInterface.Jobs
             Helper=new OracleDBHelper(conStr);
 
             Interface=new ArrowInterface();
+
+            this.JobName = this.GetType().Name;
+
+            //接口间隔定义值，于配置文件中定义
+            this.Interval = Convert.ToInt32(ConfigurationManager.AppSettings.Get(JobName));
+
         }
 
         public AuthorizationToken GetToken()
@@ -30,8 +40,9 @@ namespace hn.ArrowInterface.Jobs
                 {
                     //过期重新获取Token并更新数据库值
                     var newtoken = Interface.GetToken();
-                    token.Token = newtoken.Token;
-                    Helper.Update(token, string.Format(" AND TokenValue='{0}'",token.Token));
+                    newtoken.ExpiredTime=DateTime.Now.AddHours(2);
+                    //token.Token = newtoken.Token;
+                    Helper.Update(newtoken, string.Format(" AND TokenValue='{0}'",token.Token));
                 }
 
                 return token;
@@ -44,5 +55,37 @@ namespace hn.ArrowInterface.Jobs
 
             return token;
         }
+
+        public abstract bool Sync();
+
+        public void Execute(IJobExecutionContext context)
+        {
+            var where=new SyncJob_Definition();
+            where.JobClassName = this.JobName;
+            var jobRecord = Helper.GetWhere(where).SingleOrDefault();
+
+            if (jobRecord != null&&( DateTime.Now-jobRecord.LastExecute).TotalMinutes<Interval)
+            {
+                //未达到设定同步间隔
+                return;
+            }
+
+            if (Sync())
+            {
+                if (jobRecord == null)
+                {
+                    jobRecord = new SyncJob_Definition() { JobClassName = JobName,LastExecute = DateTime.Now};
+
+                    Helper.Insert(jobRecord);
+                    return;
+                }
+
+                jobRecord.LastExecute=DateTime.Now;
+
+                Helper.Update(jobRecord);
+            }
+        }
+
+
     }
 }

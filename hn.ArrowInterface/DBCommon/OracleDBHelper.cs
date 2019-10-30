@@ -191,6 +191,52 @@ namespace hn.AutoSyncLib.Common
 
         }
 
+        public bool Update<T>(T obj)
+        {
+            var t = typeof(T);
+            var pis = t.GetProperties();
+
+            string keyFieldName = "";
+
+            foreach (var pi in pis)
+            {
+                var keyAttr = pi.GetCustomAttributes(true).Count(p=>p is KeyAttribute)==1;
+                if (keyAttr)
+                {
+                    keyFieldName = pi.Name;
+                    break;
+                }
+            }
+
+            if (string.IsNullOrEmpty(keyFieldName))
+            {
+                throw new ArgumentException(string.Format("{0}类未指定Key字段", t.Name));
+            }
+            string where = string.Format(" AND {0}=:{1}", keyFieldName, keyFieldName);
+            string sql = GetUpdateSql<T>(where);
+
+            var cmd = GetCommand(sql, obj);
+            cmd.Connection = conn;
+
+            try
+            {
+                if (conn.State == ConnectionState.Closed)
+                {
+                    conn.Open();
+                }
+
+                return cmd.ExecuteNonQuery() > 0;
+            }
+            catch (Exception e)
+            {
+                LogHelper.LogErr(e);
+                LogHelper.LogInfo("SQL:" + sql);
+                throw;
+            }
+
+
+        }
+
         public bool Insert<T>(T obj)
         {
             var sql = GetInsertSql<T>();
@@ -260,7 +306,6 @@ namespace hn.AutoSyncLib.Common
             return cmd;
         }
 
-
         public int Delete<T>(string where)
         {
             var t = typeof(T);
@@ -319,19 +364,8 @@ namespace hn.AutoSyncLib.Common
             return table;
         }
 
-        public List<T> Select<T>(string sql) where T : new()
+        private List<T> DataTableToList<T>(DataTable table) where T:new()
         {
-            if (conn.State == ConnectionState.Closed)
-            {
-                conn.Open();
-            }
-            var cmd = factory.CreateCommand();
-            cmd.CommandText = sql;
-            cmd.Connection = conn;
-            var da = factory.CreateDataAdapter();
-            da.SelectCommand = cmd;
-            DataTable table = new DataTable();
-            da.Fill(table);
             //反射获得泛型类信息
             Type t = typeof(T);
             //获得泛型类所有公共字段
@@ -352,21 +386,43 @@ namespace hn.AutoSyncLib.Common
                             return true;
                         }
                         //如果列名与字段不是一一对应的，则反身字段Column特，获取Column的Name值与列名进行比较
-                        var  attr =
+                        var attr =
                             p.GetCustomAttributes(true).FirstOrDefault(f => f.GetType() == typeof(ColumnAttribute)) as
                                 ColumnAttribute;
 
-                        return attr!=null&&attr.Name.ToUpper() == col.ColumnName.ToUpper();
+                        return attr != null && attr.Name.ToUpper() == col.ColumnName.ToUpper();
 
                     });
                     if (pi != null)
                     {
                         object value = row[col.ColumnName];
-                        pi.SetValue(item, value,null);
+                        if (value != null&&!string.IsNullOrEmpty(value.ToString()))
+                        {
+                            pi.SetValue(item,value,null);
+                        }
                     }
                 }
                 result.Add(item);
             }
+
+            return result;
+        }
+
+        public List<T> Select<T>(string sql) where T : new()
+        {
+            if (conn.State == ConnectionState.Closed)
+            {
+                conn.Open();
+            }
+            var cmd = factory.CreateCommand();
+            cmd.CommandText = sql;
+            cmd.Connection = conn;
+            var da = factory.CreateDataAdapter();
+            da.SelectCommand = cmd;
+            DataTable table = new DataTable();
+            da.Fill(table);
+
+            var result = DataTableToList<T>(table);
 
             return result;
         }
@@ -449,7 +505,7 @@ namespace hn.AutoSyncLib.Common
         {
             var t = typeof(T);
             var tableAttr = t.GetCustomAttributes(true).FirstOrDefault(p => p.GetType() == typeof(TableAttribute)) as TableAttribute;
-            string tableName = tableAttr.Name;
+            string tableName = tableAttr==null?t.Name:tableAttr.Name;
 
             StringBuilder builder = new StringBuilder();
             builder.Append("SELECT * FROM ");
@@ -465,7 +521,6 @@ namespace hn.AutoSyncLib.Common
             {
                 conn.Open();
             }
-            var cmd = factory.CreateCommand();
             string sql = GetSelectSql<T>();
             var t = typeof(T);
             var pis = t.GetProperties();
@@ -488,7 +543,7 @@ namespace hn.AutoSyncLib.Common
                 throw new ArgumentException(string.Format("{0}类未指定Key字段", t.Name));
             }
 
-            sql+=" AND {0}="+id.ToString();
+            sql+=string.Format(" AND {0}=",keyFieldName)+id.ToString();
 
             var result = Select<T>(sql).FirstOrDefault();
 
@@ -500,6 +555,96 @@ namespace hn.AutoSyncLib.Common
         {
             string sql = GetSelectSql<T>();
             return Select<T>(sql);
+        }
+
+        private DbCommand GetCommand<T>(T where)
+        {
+            string sql = GetSelectSql<T>();
+            StringBuilder builder = new StringBuilder();
+            builder.Append(sql);
+
+            var t = where.GetType();
+            var pis = t.GetProperties();
+            var cmd = factory.CreateCommand();
+
+            foreach (var pi in pis)
+            {
+                var value = pi.GetValue(where, null);
+                if (value != null)
+                {
+                    string fieldName = pi.Name;
+
+                    if (pi.GetCustomAttributes(true).FirstOrDefault(p => p.GetType() == typeof(ColumnAttribute)) is ColumnAttribute attr)
+                    {
+                        fieldName = attr.Name;
+                    }
+
+                    cmd.Parameters.Add(new OracleParameter(pi.Name, value));
+
+                    builder.Append(" AND ");
+                    builder.Append(fieldName);
+                    builder.Append("=:");
+                    builder.Append(pi.Name);
+
+                }
+            }
+            sql= builder.ToString();
+            cmd.CommandText = sql;
+            cmd.Connection = conn;
+            return cmd;
+        }
+
+        public string GetSelectSql<T>(object wherer)
+        {
+            string sql = GetSelectSql<T>();
+            StringBuilder builder = new StringBuilder();
+            builder.Append(sql);
+            builder.Append(" WHERE 1=1 ");
+
+            var t = wherer.GetType();
+            var pis = t.GetProperties();
+
+            foreach (var pi in pis)
+            {
+                var value = pi.GetValue(wherer, null);
+                if (value != null)
+                {
+                    string fieldName = pi.Name;
+
+                    if (pi.GetCustomAttributes(true).FirstOrDefault(p => p.GetType() == typeof(ColumnAttribute)) is ColumnAttribute attr)
+                    {
+                        fieldName = attr.Name;
+                    }
+
+                    builder.Append(" AND ");
+                    builder.Append(fieldName);
+                    builder.Append("=:");
+                    builder.Append(pi.Name);
+
+                }
+            }
+
+            return builder.ToString();
+        }
+
+        public List<T> GetWhere<T>(T condiction) where T:new()
+        {
+            if (conn.State == ConnectionState.Closed)
+            {
+                conn.Open();
+            }
+
+            var cmd = GetCommand(condiction);
+            var da = factory.CreateDataAdapter();
+            da.SelectCommand = cmd;
+
+            DataTable data = new DataTable();
+            da.Fill(data);
+
+            var result = DataTableToList<T>(data);
+
+            return result;
+
         }
     }
 }

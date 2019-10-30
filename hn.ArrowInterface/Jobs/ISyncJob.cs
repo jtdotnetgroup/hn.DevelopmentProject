@@ -1,4 +1,6 @@
-﻿namespace hn.ArrowInterface.Jobs
+﻿using Quartz;
+
+namespace hn.ArrowInterface.Jobs
 {
     public interface ISyncJob
     {

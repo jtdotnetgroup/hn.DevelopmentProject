@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 using System.Data;
 using System.Data.Common;
@@ -44,8 +45,8 @@ namespace hn.AutoSyncLib.Common
             }
             catch (Exception e)
             {
-                Console.Out.WriteLineAsync(e.Message);
-                Console.Out.WriteLineAsync("SQL:" + sql);
+                LogHelper.LogErr(e);
+                LogHelper.LogInfo("SQL:" + sql);
                 throw;
             }
 
@@ -74,8 +75,8 @@ namespace hn.AutoSyncLib.Common
             catch (Exception e)
             {
 
-                Console.Out.WriteLineAsync(e.Message);
-                Console.Out.WriteLineAsync("SQL:" + sql);
+                LogHelper.LogErr(e);
+                LogHelper.LogInfo("SQL:" + sql);
                 throw;
             }
         }
@@ -83,11 +84,11 @@ namespace hn.AutoSyncLib.Common
         public string GetInsertSql<T>()
         {
             var t = typeof(T);
+            
+            var pis = t.GetProperties().Where(p=>p.GetCustomAttributes().Count(pi => pi.GetType() == typeof(NotMappedAttribute)) == 0).ToList();
 
-            var pis = t.GetProperties().ToList();
-
-            var tableAttr = t.CustomAttributes.FirstOrDefault(p => p.AttributeType == typeof(TableAttribute));
-            var tableName = tableAttr.ConstructorArguments.First().Value;
+            var tableAttr = t.GetCustomAttributes(true).FirstOrDefault(p => p.GetType() == typeof(TableAttribute)) as TableAttribute;
+            var tableName = tableAttr.Name;
 
             var strbuilder = new StringBuilder();
             strbuilder.AppendFormat("INSERT INTO {0} ", tableName);
@@ -97,29 +98,28 @@ namespace hn.AutoSyncLib.Common
 
             pis.ForEach(p =>
             {
-                string fieldName = p.Name;
+                    string fieldName = p.Name;
 
-                var column = p.CustomAttributes.SingleOrDefault(o => o.AttributeType == typeof(ColumnAttribute));
+                    if (p.GetCustomAttributes(true).SingleOrDefault(o => o.GetType() == typeof(ColumnAttribute)) is
+                        ColumnAttribute column)
+                    {
+                        fieldName = column.Name;
+                    }
 
-                if (column != null)
-                {
-                    fieldName = column.ConstructorArguments.First().Value.ToString();
-                }
+                    fields += fieldName;
 
-                fields += fieldName;
+                    values += ":" + p.Name;
 
-                values += ":" + fieldName;
-
-                if (p == pis.Last())
-                {
-                    fields += ")";
-                    values += ")";
-                }
-                else
-                {
-                    fields += ",";
-                    values += ",";
-                }
+                    if (p == pis.Last())
+                    {
+                        fields += ")";
+                        values += ")";
+                    }
+                    else
+                    {
+                        fields += ",";
+                        values += ",";
+                    }
             });
 
             strbuilder.Append(fields);
@@ -132,10 +132,10 @@ namespace hn.AutoSyncLib.Common
         {
             var t = typeof(T);
 
-            var pis = t.GetProperties().ToList();
+            var pis = t.GetProperties().Where(p => p.GetCustomAttributes().Count(pi => pi.GetType() == typeof(NotMappedAttribute)) == 0).ToList();
 
-            var tableAttr = t.CustomAttributes.FirstOrDefault(p => p.AttributeType == typeof(TableAttribute));
-            var tableName = tableAttr.ConstructorArguments.First().Value;
+            var tableAttr = t.GetCustomAttributes(true).FirstOrDefault(p => p.GetType() == typeof(TableAttribute)) as TableAttribute;
+            var tableName = tableAttr.Name;
 
             var strbuilder = new StringBuilder();
             strbuilder.AppendFormat("UPDATE {0} SET ", tableName);
@@ -144,25 +144,25 @@ namespace hn.AutoSyncLib.Common
 
             pis.ForEach(p =>
             {
-                string fieldName = p.Name;
 
-                var column = p.CustomAttributes.SingleOrDefault(o => o.AttributeType == typeof(ColumnAttribute));
+                    string fieldName = p.Name;
 
-                if (column != null)
-                {
-                    fieldName = column.ConstructorArguments.First().Value.ToString();
-                }
+                    if (p.GetCustomAttributes(true).SingleOrDefault(o => o.GetType() == typeof(ColumnAttribute)) is
+                        ColumnAttribute column)
+                    {
+                        fieldName = column.Name;
+                    }
 
-                fields += fieldName + "=:" + fieldName;
+                    fields += fieldName + "=:" + p.Name;
 
-                if (p == pis.Last())
-                {
-                    fields += " WHERE 1=1 ";
-                }
-                else
-                {
-                    fields += ",";
-                }
+                    if (p == pis.Last())
+                    {
+                        fields += " WHERE 1=1 ";
+                    }
+                    else
+                    {
+                        fields += ",";
+                    }
             });
 
             strbuilder.Append(fields);
@@ -187,10 +187,56 @@ namespace hn.AutoSyncLib.Common
             }
             catch (Exception e)
             {
-                Console.Out.WriteLineAsync(e.Message);
-                Console.Out.WriteLineAsync("SQL:" + sql);
+                LogHelper.LogErr(e);
+                LogHelper.LogInfo("SQL:" + sql);
                 throw;
             }
+
+        }
+
+        public bool Update<T>(T obj)
+        {
+            var t = typeof(T);
+            var pis = t.GetProperties();
+
+            string keyFieldName = "";
+
+            foreach (var pi in pis)
+            {
+                var keyAttr = pi.GetCustomAttributes(true).Count(p => p is KeyAttribute) == 1;
+                if (keyAttr)
+                {
+                    keyFieldName = pi.Name;
+                    break;
+                }
+            }
+
+            if (string.IsNullOrEmpty(keyFieldName))
+            {
+                throw new ArgumentException(string.Format("{0}类未指定Key字段", t.Name));
+            }
+            string where = string.Format(" AND {0}=:{1}", keyFieldName, keyFieldName);
+            string sql = GetUpdateSql<T>(where);
+
+            var cmd = GetCommand(sql, obj);
+            cmd.Connection = conn;
+
+            try
+            {
+                if (conn.State == ConnectionState.Closed)
+                {
+                    conn.Open();
+                }
+
+                return cmd.ExecuteNonQuery() > 0;
+            }
+            catch (Exception e)
+            {
+                LogHelper.LogErr(e);
+                LogHelper.LogInfo("SQL:" + sql);
+                throw;
+            }
+
 
         }
 
@@ -211,8 +257,8 @@ namespace hn.AutoSyncLib.Common
             }
             catch (Exception e)
             {
-                Console.Out.WriteLineAsync(e.Message);
-                Console.Out.WriteLineAsync("SQL:" + sql);
+                LogHelper.LogErr(e);
+                LogHelper.LogInfo("SQL:" + sql);
                 throw;
             }
         }
@@ -224,11 +270,11 @@ namespace hn.AutoSyncLib.Common
             cmd.Connection = conn;
 
             var t = typeof(T);
-            var pis = t.GetProperties().ToList();
+            var pis = t.GetProperties().Where(p=>p.GetCustomAttributes().Count(pi=>pi.GetType()==typeof(NotMappedAttribute))==0).ToList();
 
             pis.ForEach(p =>
             {
-                var value = p.GetValue(par);
+                var value = p.GetValue(par, null);
                 if (value == null)
                     value = "";
 
@@ -251,7 +297,7 @@ namespace hn.AutoSyncLib.Common
             {
                 pis.ForEach(p =>
                 {
-                    var value = p.GetValue(par);
+                    var value = p.GetValue(par, null);
                     if (value == null)
                         value = "";
 
@@ -263,20 +309,14 @@ namespace hn.AutoSyncLib.Common
             return cmd;
         }
 
-
         public int Delete<T>(string where)
         {
-
-
             var t = typeof(T);
 
             var pis = t.GetProperties().ToList();
 
-            var tableAttr = t.CustomAttributes.FirstOrDefault(p => p.AttributeType == typeof(TableAttribute));
-            var tableName = tableAttr.ConstructorArguments.First().Value;
-
-            Console.Out.WriteLineAsync($"清除{tableName}全表");
-            LogHelper.LogInfo($"清除{tableName}全表");
+            var tableAttr = t.GetCustomAttributes(true).FirstOrDefault(p => p.GetType() == typeof(TableAttribute)) as TableAttribute;
+            var tableName = tableAttr.Name;
 
             string sql = string.Format("DELETE FROM {0} WHERE 1=1 {1}", tableName, where);
 
@@ -295,8 +335,8 @@ namespace hn.AutoSyncLib.Common
             }
             catch (Exception e)
             {
-                Console.Out.WriteLineAsync(e.Message);
-                Console.Out.WriteLineAsync("SQL:" + sql);
+                LogHelper.LogErr(e);
+                LogHelper.LogInfo("SQL:" + sql);
                 throw;
             }
 
@@ -320,11 +360,55 @@ namespace hn.AutoSyncLib.Common
             }
             catch (Exception e)
             {
-                Console.Out.WriteLineAsync($"SQL:{sql}\n异常：{e.Message}");
+                LogHelper.LogInfo($"SQL:{sql}\n异常：{e.Message}");
                 throw;
             }
 
             return table;
+        }
+
+        private List<T> DataTableToList<T>(DataTable table) where T : new()
+        {
+            //反射获得泛型类信息
+            Type t = typeof(T);
+            //获得泛型类所有公共字段
+            List<PropertyInfo> pisInfos = t.GetProperties().ToList();
+            //最终返回的对象列表
+            List<T> result = new List<T>();
+            foreach (DataRow row in table.Rows)
+            {
+                T item = new T();
+                foreach (DataColumn col in table.Columns)
+                {
+                    //这里假设字段名和数据库列名是一 一对应
+                    //可能通过字段名与列名进行比较，相同则进行取值赋值操作
+                    PropertyInfo pi = pisInfos.FirstOrDefault(p =>
+                    {
+                        if (p.Name.ToUpper() == col.ColumnName.ToUpper())
+                        {
+                            return true;
+                        }
+                        //如果列名与字段不是一一对应的，则反身字段Column特，获取Column的Name值与列名进行比较
+                        var attr =
+                            p.GetCustomAttributes(true).FirstOrDefault(f => f.GetType() == typeof(ColumnAttribute)) as
+                                ColumnAttribute;
+
+                        return attr != null && attr.Name.ToUpper() == col.ColumnName.ToUpper();
+
+                    });
+                    if (pi != null)
+                    {
+                        object value = row[col.ColumnName];
+                        if (value != null && !string.IsNullOrEmpty(value.ToString()))
+                        {
+                            pi.SetValue(item, value, null);
+                        }
+                    }
+                }
+                result.Add(item);
+            }
+
+            return result;
         }
 
         public List<T> Select<T>(string sql) where T : new()
@@ -340,28 +424,8 @@ namespace hn.AutoSyncLib.Common
             da.SelectCommand = cmd;
             DataTable table = new DataTable();
             da.Fill(table);
-            //反射获得泛型类信息
-            Type t = typeof(T);
-            //获得泛型类所有公共字段
-            List<PropertyInfo> pisInfos = t.GetProperties().ToList();
-            //最终返回的对象列表
-            List<T> result = new List<T>();
-            foreach (DataRow row in table.Rows)
-            {
-                T item = new T();
-                foreach (DataColumn col in table.Columns)
-                {
-                    //这里假设字段名和数据库列名是一 一对应
-                    //可能通过字段名与列名进行比较，相同则进行取值赋值操作
-                    PropertyInfo pi = pisInfos.FirstOrDefault(p => p.Name == col.ColumnName);
-                    if (pi != null)
-                    {
-                        object value = row[col.ColumnName];
-                        pi.SetValue(item, value);
-                    }
-                }
-                result.Add(item);
-            }
+
+            var result = DataTableToList<T>(table);
 
             return result;
         }
@@ -399,12 +463,11 @@ namespace hn.AutoSyncLib.Common
             }
             catch (Exception e)
             {
-                Console.Out.WriteLineAsync(e.Message);
-                Console.Out.WriteLineAsync("SQL:" + sql);
+                LogHelper.LogErr(e);
+                LogHelper.LogInfo("SQL:" + sql);
                 throw;
             }
 
-            return false;
         }
 
         public bool BatchUpdate<T>(List<T> data, string where)
@@ -430,15 +493,161 @@ namespace hn.AutoSyncLib.Common
                     cmd.ExecuteNonQuery();
                 });
                 var timespan = DateTime.Now - now;
-                Console.Out.WriteLineAsync($"批量更新完成耗时：{timespan.Hours}时{timespan.Minutes}分{timespan.Seconds}秒，共更新{data.Count}条数据");
+                LogHelper.LogInfo($"批量更新完成耗时：{timespan.Hours}时{timespan.Minutes}分{timespan.Seconds}秒，共更新{data.Count}条数据");
                 return true;
             }
             catch (Exception e)
             {
-                Console.Out.WriteLineAsync($"批量更新失败\n异常：{e.Message}");
-                Console.Out.WriteLineAsync("SQL:" + sql);
+                LogHelper.LogInfo($"批量更新失败\n异常：{e.Message}");
+                LogHelper.LogInfo("SQL:" + sql);
                 throw;
             }
+        }
+
+        public string GetSelectSql<T>()
+        {
+            var t = typeof(T);
+            var tableAttr = t.GetCustomAttributes(true).FirstOrDefault(p => p.GetType() == typeof(TableAttribute)) as TableAttribute;
+            string tableName = tableAttr == null ? t.Name : tableAttr.Name;
+
+            StringBuilder builder = new StringBuilder();
+            builder.Append("SELECT * FROM ");
+            builder.Append(tableName);
+            builder.Append(" Where 1=1");
+
+            return builder.ToString();
+        }
+
+        public T Get<T>(object id) where T : new()
+        {
+            if (conn.State == ConnectionState.Closed)
+            {
+                conn.Open();
+            }
+            string sql = GetSelectSql<T>();
+            var t = typeof(T);
+            var pis = t.GetProperties();
+
+            string keyFieldName = "";
+
+            foreach (var pi in pis)
+            {
+                var keyAttr = pi.GetCustomAttributes(true).FirstOrDefault(p => p.GetType() == typeof(KeyAttribute));
+
+                if (keyAttr != null)
+                {
+                    keyFieldName = pi.Name;
+                    break;
+                }
+            }
+
+            if (string.IsNullOrEmpty(keyFieldName))
+            {
+                throw new ArgumentException(string.Format("{0}类未指定Key字段", t.Name));
+            }
+
+            sql += string.Format(" AND {0}=", keyFieldName) + id.ToString();
+
+            var result = Select<T>(sql).FirstOrDefault();
+
+            return result;
+
+        }
+
+        public List<T> GetAll<T>() where T : new()
+        {
+            string sql = GetSelectSql<T>();
+            return Select<T>(sql);
+        }
+
+        private DbCommand GetCommand<T>(T where)
+        {
+            string sql = GetSelectSql<T>();
+            StringBuilder builder = new StringBuilder();
+            builder.Append(sql);
+
+            var t = where.GetType();
+            var pis = t.GetProperties().Where(p=>p.GetCustomAttributes().Count(pi=>pi.GetType()==typeof(NotMappedAttribute))==0);
+            var cmd = factory.CreateCommand();
+
+            foreach (var pi in pis)
+            {
+                var value = pi.GetValue(where, null);
+                if (value != null)
+                {
+                    string fieldName = pi.Name;
+
+                    if (pi.GetCustomAttributes(true).FirstOrDefault(p => p.GetType() == typeof(ColumnAttribute)) is ColumnAttribute attr)
+                    {
+                        fieldName = attr.Name;
+                    }
+
+                    cmd.Parameters.Add(new OracleParameter(pi.Name, value));
+
+                    builder.Append(" AND ");
+                    builder.Append(fieldName);
+                    builder.Append("=:");
+                    builder.Append(pi.Name);
+
+                }
+            }
+            sql = builder.ToString();
+            cmd.CommandText = sql;
+            cmd.Connection = conn;
+            return cmd;
+        }
+
+        public string GetSelectSql<T>(object wherer)
+        {
+            string sql = GetSelectSql<T>();
+            StringBuilder builder = new StringBuilder();
+            builder.Append(sql);
+            builder.Append(" WHERE 1=1 ");
+
+            var t = wherer.GetType();
+            var pis = t.GetProperties();
+
+            foreach (var pi in pis)
+            {
+                var value = pi.GetValue(wherer, null);
+                if (value != null)
+                {
+                    string fieldName = pi.Name;
+
+                    if (pi.GetCustomAttributes(true).FirstOrDefault(p => p.GetType() == typeof(ColumnAttribute)) is ColumnAttribute attr)
+                    {
+                        fieldName = attr.Name;
+                    }
+
+                    builder.Append(" AND ");
+                    builder.Append(fieldName);
+                    builder.Append("=:");
+                    builder.Append(pi.Name);
+
+                }
+            }
+
+            return builder.ToString();
+        }
+
+        public List<T> GetWhere<T>(T condiction) where T : new()
+        {
+            if (conn.State == ConnectionState.Closed)
+            {
+                conn.Open();
+            }
+
+            var cmd = GetCommand(condiction);
+            var da = factory.CreateDataAdapter();
+            da.SelectCommand = cmd;
+
+            DataTable data = new DataTable();
+            da.Fill(data);
+
+            var result = DataTableToList<T>(data);
+
+            return result;
+
         }
     }
 }

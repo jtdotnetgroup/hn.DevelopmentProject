@@ -4,9 +4,9 @@ using Newtonsoft.Json;
 
 namespace hn.ArrowInterface.Jobs
 {
-    public class SyncProductJob: AbsJob,ISyncJob
+    public class SyncProductJob: AbsJob
     {
-        public bool Sync()
+        public override bool Sync()
         {
             var token = GetToken();
 

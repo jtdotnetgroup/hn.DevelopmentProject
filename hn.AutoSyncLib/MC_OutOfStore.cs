@@ -66,29 +66,30 @@ namespace hn.AutoSyncLib
                             }
                         }
                         //写入数据库
-                        if (result.resultInfo.Count > 0)
-                        {
-                            //并发写入
-                            foreach (var row in result.resultInfo.AsParallel())
-                            {
-                                row.ComputeFID();
+                        WriteDataToDB(result.resultInfo);
+                        //if (result.resultInfo.Count > 0)
+                        //{
+                        //    //并发写入
+                        //    foreach (var row in result.resultInfo.AsParallel())
+                        //    {
+                        //        row.ComputeFID();
 
-                                string sql = "SELECT COUNT(*) FROM MN_CKD WHERE FID=:FID";
-                                var par = new Dictionary<string, object>();
-                                par.Add(":FID", row.FID);
+                        //        string sql = "SELECT COUNT(*) FROM MN_CKD WHERE FID=:FID";
+                        //        var par = new Dictionary<string, object>();
+                        //        par.Add(":FID", row.FID);
 
-                                var count = helper.ExecuteScalar(sql, par);
+                        //        var count = helper.ExecuteScalar(sql, par);
 
-                                if (Convert.ToInt32(count) > 0)
-                                {
-                                    string where = "AND FID=:FID";
-                                    helper.Update(row, where);
-                                    continue;
-                                }
+                        //        if (Convert.ToInt32(count) > 0)
+                        //        {
+                        //            string where = "AND FID=:FID";
+                        //            helper.Update(row, where);
+                        //            continue;
+                        //        }
 
-                                helper.Insert(row);
-                            }
-                        }
+                        //        helper.Insert(row);
+                        //    }
+                        //}
                         pageindex++;
                     } while (pageindex <= pagecount);
 
@@ -117,14 +118,14 @@ namespace hn.AutoSyncLib
             var dbdate = helper.ExecuteScalar(sql, new Dictionary<string, object>()).ToString();
 
             var startDate = string.IsNullOrEmpty(dbdate) ?
-                DateTime.Parse("2019/05/01").ToString("yyyy/MM/dd")
+                DateTime.Parse("2019/08/01").ToString("yyyy/MM/dd")
                 : DateTime.Parse(dbdate).Date.ToString("yyyy/MM/dd");
 
-            var endDate = DateTime.Now.Date.AddDays(-1).ToString("yyyy/MM/dd");
+            var endDate = DateTime.Now.Date.ToString("yyyy/MM/dd");
 
             int pageindex = 1;
 
-            return await RequestDataWithMultiThreading(token, startDate, endDate, pageSize);
+            return await RequestAndWriteData(token, startDate, endDate, pageSize);
 
         }
 
@@ -173,6 +174,13 @@ namespace hn.AutoSyncLib
             }
 
             return helper.Delete<MC_OutofStore_ResultInfo>("");
+        }
+
+        public async Task<bool> SyncData_Today(MC_getToken_Result token)
+        {
+            int pageindex = 1;
+            var startDate = DateTime.Now.Date.ToString("yyyy/MM/dd");
+            return await RequestAndWriteData(token, startDate, startDate, pageSize);
         }
 
         private bool SaveToDataBase(List<MC_OutofStore_ResultInfo> data)

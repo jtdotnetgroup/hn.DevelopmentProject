@@ -71,6 +71,8 @@
     <Compile Include="Common\OracleDBHelper.cs" />
     <Compile Include="DAL\MC_OutOfStore_DAL.cs" />
     <Compile Include="ISync.cs" />
+    <Compile Include="Jobs\MC_OutOfStoreWithClearTable_SyncJob.cs" />
+    <Compile Include="Jobs\MC_PickUpGoodsWithClearTable_SyncJob.cs" />
     <Compile Include="Jobs\MC_PickUpGoods_SyncJob.cs" />
     <Compile Include="Jobs\MC_OutOfStore_SyncJob.cs" />
     <Compile Include="Jobs\MC_PickUpGoods_SyncJob_WithDataMap.cs" />
@@ -80,6 +82,8 @@
     <Compile Include="MC_PickUpGoods.cs" />
     <Compile Include="Model\CommonParams.cs" />
     <Compile Include="Model\CommonRequestParams.cs" />
+    <Compile Include="Model\IComputeFID.cs" />
+    <Compile Include="Model\IFID.cs" />
     <Compile Include="Model\MC_getToken_Params.cs" />
     <Compile Include="Model\MC_getToken_Result.cs" />
     <Compile Include="Model\MC_OutOfStore_Result.cs" />

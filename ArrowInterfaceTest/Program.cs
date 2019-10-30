@@ -1,10 +1,12 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reflection;
 using System.Text;
 using hn.ArrowInterface;
 using hn.ArrowInterface.Entities;
 using hn.ArrowInterface.Jobs;
+using hn.ArrowInterface.Schedule;
 using hn.AutoSyncLib.Common;
 
 namespace ArrowInterfaceTest
@@ -14,8 +16,8 @@ namespace ArrowInterfaceTest
         static ArrowInterface iInterface = new ArrowInterface();
         static void Main(string[] args)
         {
-            TestPolicyJob();
-            
+            HnObOrderDaySchedule.DoWork();
+            Console.WriteLine(1);
         }
 
         static void TestLogin()
@@ -112,6 +114,22 @@ namespace ArrowInterfaceTest
         static void TestAcctOAStatusJob()
         {
             ISyncJob job = new SyncAcctOAStatusJob();
+            job.Sync();
+            Console.WriteLine("OK");
+            Console.ReadKey();
+        }
+
+        static void TestSyncHnObOrderDay()
+        {
+            ISyncJob job = new SyncHnObOrderDay();
+            job.Sync();
+            Console.WriteLine("OK");
+            Console.ReadKey();
+        }
+
+        static void TestSyncInventoryDayJob()
+        {
+            ISyncJob job = new SyncInventoryDayJob();
             job.Sync();
             Console.WriteLine("OK");
             Console.ReadKey();

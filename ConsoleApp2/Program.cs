@@ -21,8 +21,11 @@ namespace ConsoleApp2
             var fi = new System.IO.FileInfo(path);
             log4net.Config.XmlConfigurator.Configure(fi);
 
-            MC_OutOfStore_Schedule.Start().GetAwaiter().GetResult();
-            MC_PickUpGoods_Schedule.Start().GetAwaiter().GetResult();
+            MC_OutOfStore_Schedule.StartEveryDayTask().GetAwaiter().GetResult();
+            MC_PickUpGoods_Schedule.StartEveryDayTask().GetAwaiter().GetResult();
+            //MC_PickUpGoods_Schedule.StartTodaySync().GetAwaiter().GetResult();
+            //MC_OutOfStore_Schedule.StartTodaySync().GetAwaiter().GetResult();
+
 
             while (true)
             {
