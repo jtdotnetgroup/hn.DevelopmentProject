@@ -187,6 +187,20 @@ namespace hn.ArrowInterface
 
             return BaseRequest<AbsRequestResult<AcctOAStatus>>(GlobParams.QueryAcctOAStatus, token, pars);
         }
-        
+        ///// <summary>
+        /////  
+        ///// </summary>
+        ///// <param name="token"></param>
+        ///// <returns></returns>
+        //public AbsRequestResult<AcctOAStatus> AcctOAStatus(string token)
+        //{
+        //    string dealerCode = ConfigurationManager.AppSettings["dealerCode"];
+        //    Dictionary<string, object> pars = new Dictionary<string, object>();
+        //    pars.Add("lhodoID", dealerCode);
+        //    pars.Add("lhplateNo", "");
+
+        //    return BaseRequest<AbsRequestResult<AcctOAStatus>>(GlobParams.QueryAcctOAStatus, token, pars);
+        //}
+
     }
 }

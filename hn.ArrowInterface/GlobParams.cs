@@ -24,5 +24,9 @@ namespace hn.ArrowInterface
         public static string QueryCustomOrderPage = ConfigurationManager.AppSettings["QueryCustomOrderPage"];
         //十、	物流部开单记录下载
         public static string QueryObPage = ConfigurationManager.AppSettings["QueryObPage"];
+        //十一、发货车牌号下载
+        public static string GoodsCarNoDown = ConfigurationManager.AppSettings["GoodsCarNoDown"];
+        //十二、出库单下载
+        public static string OutOrderDown = ConfigurationManager.AppSettings["OutOrderDown"]; 
     }
 }
