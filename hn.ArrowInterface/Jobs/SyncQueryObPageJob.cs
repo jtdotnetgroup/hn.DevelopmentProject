@@ -1,5 +1,5 @@
 ﻿using System;
-using hn.AutoSyncLib.Common;
+using hn.Common;
 using Newtonsoft.Json;
 
 namespace hn.ArrowInterface.Jobs
@@ -19,10 +19,13 @@ namespace hn.ArrowInterface.Jobs
                     try
                     { 
                         Helper.Insert(row);
+                        foreach (var item in row.saleOrderItemList) {
+                            Helper.Insert(item);
+                        }
                     }
                     catch (Exception e)
                     {
-                        string message = string.Format("库存记录插入失败：{0}", JsonConvert.SerializeObject(row));
+                        string message = string.Format("物流部开单记录下载：{0}", JsonConvert.SerializeObject(row));
                         LogHelper.LogInfo(message);
                         LogHelper.LogErr(e);
                     }

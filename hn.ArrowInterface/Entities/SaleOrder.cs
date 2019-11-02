@@ -9,7 +9,7 @@ namespace hn.ArrowInterface.Entities
     /// <summary>
     /// 销售订单头
     /// </summary>
-    [Table("LH_SaleOrder")]
+    [Table("LH_SALEORDER")]
     public class SaleOrder
     {
         public string orderId { get; set; }
@@ -50,15 +50,16 @@ namespace hn.ArrowInterface.Entities
         public string remarks { get; set; }
         public string lHDeliRequire { get; set; }
         public string lHRequestRequire { get; set; }
-        public string lHManAdvice { get; set; }
+        public string lHManAdvice { get; set; } 
         public DateTime attr2 { get; set; }
         public DateTime attr3 { get; set; }
+        [NotMapped]
         public SaleOrderDetailed[] saleOrderItemList { get; set; }
     }
     /// <summary>
     /// 销售订单明细
     /// </summary>
-    [Table("LH_SaleOrderDetailed")]
+    [Table("LH_SALEORDERDETAILED")]
     public class SaleOrderDetailed
     {
         public string prodCode { get; set; }

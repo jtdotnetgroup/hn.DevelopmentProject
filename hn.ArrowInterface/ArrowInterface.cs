@@ -82,26 +82,87 @@ namespace hn.ArrowInterface
 
             return BaseRequest<AbsRequestResult<QueryPolicy>>(url, token, pars);
         }
+        
+        /// <summary>
+        /// 7、销售订单上传
+        /// </summary>
+        /// <param name="token"></param>
+        /// <returns></returns>
+        public AbsRequestResult<Order> SaleOrderUpload(string token)
+        {
+            SaleOrderUpload saleOrderUpload = new SaleOrderUpload()
+            {
+                orderType = "常规订单",
+                acctCode = "AW04298",
+                tradeCompanyName = "广东乐华智能卫浴有限公司",
+                billIdName = "测试法人",
+                salesChannel = "零售",
+                lHbuType = "常规",
+                contractWay = "经销",
+                orderProdLine = "卫浴",
+                balanceName = "测试-箭牌卫浴事业部-卫浴-零售",
+                lHexpectedArrivedDate = DateTime.Now.AddDays(1).ToString("yyyy-MM-dd"),
+                lHdepositOrNot = "N",
+                lHdiscountType = "底价不变",  
+                lHorgName = "箭牌卫浴事业部",
+                submissionDate = DateTime.Now,
+                source = "华耐系统",
+                lHOutSystemID = "testorder001",
+                lHOutSystemOd = "dsdd-9999901",
+                lHpromotionPolicyID = "", 
+                consignee = "1",
+                lHoutboundOrder = "",
+                lHAdvertingMoneyType = "PayForGoods",
+                remarks = "",
+                saleOrderItemList = new SaleOrderUploadDetailed[] {
+                    new SaleOrderUploadDetailed {
+                        prodCode = "17103103036416",
+                        qTY = 10,
+                        lHrowSource = "华耐系统",
+                        lHOutSystemID = "testorder001",
+                        lHOutSystemLineID = "testorderitem001",
+                        lHcomments = "",
+                        lHDctpolicyItemId = "W-57ASBU2SD"
+                    }
+                }
+            }; 
+
+            return BaseRequest<AbsRequestResult<Order>>(GlobParams.SaleSaleUpload, token, saleOrderUpload);
+        }
+        /// <summary>
+        /// 8、审核状态回传
+        /// </summary>
+        /// <param name="token"></param>
+        /// <returns></returns>
+        public AbsRequestResult<AcctOAStatus> AcctOAStatus(string token)
+        {
+            string dealerCode = ConfigurationManager.AppSettings["dealerCode"];
+            Dictionary<string, object> pars = new Dictionary<string, object>();
+            string[] arr =new string[] { "ASC-1907000091", "ASC-1906000119" };
+            pars.Add("idStrings", arr); 
+            pars.Add("acctCode", "123"); 
+
+            return BaseRequest<AbsRequestResult<AcctOAStatus>>(GlobParams.QueryAcctOAStatus, token, pars);
+        }
         /// <summary>
         /// 9、定制订单下载
         /// </summary>
         /// <param name="token"></param>
         /// <returns></returns>
         public AbsRequestResult<SaleOrder> SaleOrder(string token)
-        {
-            string url = GlobParams.QueryCustomOrderPage;
+        { 
             string dealerCode = ConfigurationManager.AppSettings["dealerCode"];
 
-            Dictionary<string, object> pars = new Dictionary<string, object>(); 
+            Dictionary<string, object> pars = new Dictionary<string, object>();
             pars.Add("attr1", dealerCode);
 
-            DateTime attr2 = DateTime.Parse("2019-03-27 10:30:28");
-            var attr3 = attr2.AddDays(30);
+            DateTime attr2 = DateTime.Parse("2019-09-10 15:01:26");
+            var attr3 = attr2.AddDays(10);
 
             pars.Add("attr2", attr2.ToString("yyyy-MM-dd HH:mm:ss"));
             pars.Add("attr3", attr3.ToString("yyyy-MM-dd HH:mm:ss"));
 
-            return BaseRequest<AbsRequestResult<SaleOrder>>(url, token, pars);
+            return BaseRequest<AbsRequestResult<SaleOrder>>(GlobParams.QueryCustomOrderPage, token, pars);
         }
         /// <summary>
         /// 10、物流部开单记录下载
@@ -116,8 +177,8 @@ namespace hn.ArrowInterface
             Dictionary<string, object> pars = new Dictionary<string, object>();
             pars.Add("attr1", dealerCode);
 
-            DateTime attr2 = DateTime.Parse("2019-03-27 10:30:28");
-            var attr3 = attr2.AddDays(30);
+            DateTime attr2 = DateTime.Parse("2019-09-10 15:01:26");
+            var attr3 = attr2.AddDays(10);
 
             pars.Add("attr2", attr2.ToString("yyyy-MM-dd HH:mm:ss"));
             pars.Add("attr3", attr3.ToString("yyyy-MM-dd HH:mm:ss"));
@@ -125,69 +186,30 @@ namespace hn.ArrowInterface
             return BaseRequest<AbsRequestResult<QueryObPage>>(url, token, pars);
         }
         /// <summary>
-        /// 7、销售订单上传
+        /// 11、发货车牌号下载
         /// </summary>
         /// <param name="token"></param>
         /// <returns></returns>
-        public AbsRequestResult<SaleOrderUploadResult> SaleOrderUpload(string token)
+        public AbsRequestResult<bool> obOrderUpload(string token)
         {
-
             Dictionary<string, object> pars = new Dictionary<string, object>();
-
-            SaleOrderUpload saleOrderUpload = new SaleOrderUpload()
-            {
-                orderType = "",
-                acctCode = "",
-                tradeCompanyName = "",
-                billIdName = "",
-                salesChannel = "",
-                lHbuType = "",
-                contractWay = "",
-                orderProdLine = "",
-                balanceName = "",
-                lHexpectedArrivedDate = DateTime.Now,
-                lHdepositOrNot = "",
-                lHdiscountType = "",
-                lHorgName = "",
-                submissionDate = DateTime.Now,
-                source = "",
-                lHOutSystemID = "",
-                lHOutSystemOd = "",
-                lHpromotionPolicyID = "",
-                remarks = "",
-                consignee = "",
-                lHoutboundOrder = "",
-                lHAdvertingMoneyType = "",
-                saleOrderItemList = new SaleOrderUploadDetailed[] {
-                    new SaleOrderUploadDetailed {
-                        prodCode = "",
-                        qTY = 0,
-                        lHrowSource = "",
-                        lHOutSystemID = "",
-                        lHOutSystemLineID = "",
-                        lHcomments = "",
-                        lHDctpolicyItemId = ""
-                    }
-                }
-            };
-            pars = saleOrderUpload.ObjectToMap();
-
-            return BaseRequest<AbsRequestResult<SaleOrderUploadResult>>(GlobParams.SaleSaleUpload, token, pars);
+            pars.Add("lhodoID", "12493");
+            pars.Add("lhplateNo", "赣AJ3622");
+            return BaseRequest<AbsRequestResult<bool>>(GlobParams.GoodsCarNoDown, token, pars);
         }
         /// <summary>
-        /// 8、审核状态回传
+        /// 12、出库单下载
         /// </summary>
         /// <param name="token"></param>
         /// <returns></returns>
-        public AbsRequestResult<AcctOAStatus> AcctOAStatus(string token)
+        public AbsRequestResult<OutOrder> queryObOrderPage(string token)
         {
-            string dealerCode = ConfigurationManager.AppSettings["dealerCode"];
-            Dictionary<string, object> pars = new Dictionary<string, object>(); 
-            pars.Add("acctCode", dealerCode); 
-            pars.Add("idStrings", ""); 
-
-            return BaseRequest<AbsRequestResult<AcctOAStatus>>(GlobParams.QueryAcctOAStatus, token, pars);
-        } 
+            Dictionary<string, object> pars = new Dictionary<string, object>();
+            pars.Add("attr2", DateTime.Parse("2019-09-10 15:01:26").ToString("yyyy-MM-dd HH:mm:ss"));
+            pars.Add("attr3", DateTime.Parse("2019-09-10 15:01:26").AddDays(10).ToString("yyyy-MM-dd HH:mm:ss"));
+            pars.Add("dealerCode", 123);
+            return BaseRequest<AbsRequestResult<OutOrder>>(GlobParams.OutOrderDown, token, pars);
+        }
         /// <summary>
         /// 华耐日销出库下载
         /// </summary>
@@ -197,8 +219,7 @@ namespace hn.ArrowInterface
         public AbsRequestResult HnInventoryBatchInsert(string token, List<HnInventoryBatchInsertEntity> data)
         {
             string url = GlobParams.Inventory_BatchInsertURL;
-            string json = JsonConvert.SerializeObject(data);
-
+            string json = JsonConvert.SerializeObject(data); 
             return BaseRequest<AbsRequestResult>(url, token, json);
         }
 

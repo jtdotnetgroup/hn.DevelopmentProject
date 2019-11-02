@@ -5,8 +5,6 @@ VisualStudioVersion = 15.0.28307.572
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "hn.AutoSyncLib", "hn.AutoSyncLib\hn.AutoSyncLib.csproj", "{557333F5-DA2D-43DC-BA17-CF481AAFF547}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "hn.AutoSyncLibTests", "hn.AutoSyncLibTests\hn.AutoSyncLibTests.csproj", "{4EF8E307-022A-4F36-A9F7-AC08567DEBFA}"
-EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "hn.AutoSyncUI", "hn.AutoSyncUI\hn.AutoSyncUI.csproj", "{B1DAB3E5-ECD4-4FE8-838B-B2495BE91984}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ConsoleApp2", "ConsoleApp2\ConsoleApp2.csproj", "{FF03E58C-EFA0-46C8-BEB8-D188DE6C47FD}"
@@ -14,6 +12,8 @@ EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "hn.ArrowInterface", "hn.ArrowInterface\hn.ArrowInterface.csproj", "{C8E030DD-9179-43FD-B82C-2EC742FC2735}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ArrowInterfaceTest", "ArrowInterfaceTest\ArrowInterfaceTest.csproj", "{1EA86BC8-8409-4274-B552-15CC20FA2729}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "hn.Common", "hn.Common\hn.Common.csproj", "{03316D43-23FA-441B-A1AA-9CDFF94E0371}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -25,10 +25,6 @@ Global
 		{557333F5-DA2D-43DC-BA17-CF481AAFF547}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{557333F5-DA2D-43DC-BA17-CF481AAFF547}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{557333F5-DA2D-43DC-BA17-CF481AAFF547}.Release|Any CPU.Build.0 = Release|Any CPU
-		{4EF8E307-022A-4F36-A9F7-AC08567DEBFA}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{4EF8E307-022A-4F36-A9F7-AC08567DEBFA}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{4EF8E307-022A-4F36-A9F7-AC08567DEBFA}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{4EF8E307-022A-4F36-A9F7-AC08567DEBFA}.Release|Any CPU.Build.0 = Release|Any CPU
 		{B1DAB3E5-ECD4-4FE8-838B-B2495BE91984}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{B1DAB3E5-ECD4-4FE8-838B-B2495BE91984}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{B1DAB3E5-ECD4-4FE8-838B-B2495BE91984}.Release|Any CPU.ActiveCfg = Release|Any CPU
@@ -45,6 +41,10 @@ Global
 		{1EA86BC8-8409-4274-B552-15CC20FA2729}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{1EA86BC8-8409-4274-B552-15CC20FA2729}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{1EA86BC8-8409-4274-B552-15CC20FA2729}.Release|Any CPU.Build.0 = Release|Any CPU
+		{03316D43-23FA-441B-A1AA-9CDFF94E0371}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{03316D43-23FA-441B-A1AA-9CDFF94E0371}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{03316D43-23FA-441B-A1AA-9CDFF94E0371}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{03316D43-23FA-441B-A1AA-9CDFF94E0371}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

@@ -4,28 +4,29 @@ using Newtonsoft.Json;
 
 namespace hn.ArrowInterface.Jobs
 {
-    public class SyncSaleOrderJob : AbsJob
+    public class SyncqueryObOrderPageJob : AbsJob
     {
         public override bool Sync()
         {
             var token = GetToken();
 
-            var result = Interface.SaleOrder(token.Token);
+            var result = Interface.queryObOrderPage(token.Token);
 
             if (result.Success)
             {
                 foreach (var row in result.Rows)
                 {
                     try
-                    { 
+                    {
                         Helper.Insert(row);
-                        foreach (var item in row.saleOrderItemList) {
+                        foreach (var item in row.saleOrderItemList)
+                        {
                             Helper.Insert(item);
                         }
                     }
                     catch (Exception e)
                     {
-                        string message = string.Format("定制订单&常规工程订单&计划工程订单下载失败：{0}", JsonConvert.SerializeObject(row));
+                        string message = string.Format("出库单下载失败：{0}", JsonConvert.SerializeObject(row));
                         LogHelper.LogInfo(message);
                         LogHelper.LogErr(e);
                     }

@@ -17,7 +17,7 @@ namespace hn.ArrowInterface.WebCommon
         private HttpClient client;
         public AbsBaseRequest()
         {
-            client=new HttpClient();
+            client = new HttpClient();
             //设置超时时长为10分钟
             client.Timeout = new TimeSpan(0, 0, 10, 0);
         }
@@ -30,33 +30,51 @@ namespace hn.ArrowInterface.WebCommon
         /// <param name="token">此值无时，传入空字符串</param>
         /// <param name="pars">请求参数</param>
         /// <returns></returns>
-        public  T BaseRequest<T>(string url, string token,Dictionary<string, object> pars)
+        public T BaseRequest<T>(string url, string token, Dictionary<string, object> pars,string Method= "POST")
         {
-            HttpContent content;
+            HttpContent content; 
+            Dictionary<string, string> dic = new Dictionary<string, string>();
             //当token为空时，设置请求的ContentType为 w-xxx-form-urlencoded
             if (string.IsNullOrEmpty(token))
             {
-                Dictionary<string, string> dic = new Dictionary<string, string>();
                 foreach (var k in pars.Keys)
                 {
-                    dic.Add(k,pars[k].ToString());
+                    dic.Add(k, pars[k].ToString());
                 }
-                content=new FormUrlEncodedContent(dic);
+                content = new FormUrlEncodedContent(dic);
             }
             else
             {
                 var json = JsonConvert.SerializeObject(pars);
                 content = new StringContent(json, Encoding.UTF8, "application/json");
-                client.DefaultRequestHeaders.Authorization =AuthenticationHeaderValue.Parse( "bearer " + token);
+                client.DefaultRequestHeaders.Authorization = AuthenticationHeaderValue.Parse("bearer " + token);
             }
+            if (Method == "POST")
+            {
+                var res = client.PostAsync(url, content).Result;
+                var result = JsonConvert.DeserializeObject<T>(res.Content.ReadAsStringAsync().Result);
 
-            var res = client.PostAsync(url, content).Result;
-            var result = JsonConvert.DeserializeObject<T>(res.Content.ReadAsStringAsync().Result);
+                return result;
+            }
+            else
+            {
+                url += "?";
+                foreach (var item in pars) {
+                    url += item.Key + "=" + item.Value+"&";
+                }
+                url += "k=1";
+                var res = client.GetAsync(url).Result;
+                var result = JsonConvert.DeserializeObject<T>(res.Content.ReadAsStringAsync().Result);
 
-            return result;
+                return result;
+            }
+           
 
         }
-
+        public T BaseRequest<T>(string url, string token, object json)
+        {
+            return BaseRequest<T>(url, token, JsonConvert.SerializeObject(json));
+        }
         public T BaseRequest<T>(string url, string token, string json)
         {
             HttpContent content = new StringContent(json, Encoding.UTF8, "application/json");
@@ -64,7 +82,7 @@ namespace hn.ArrowInterface.WebCommon
             client.DefaultRequestHeaders.Authorization = AuthenticationHeaderValue.Parse("bearer " + token);
 
             var res = client.PostAsync(url, content).Result;
-            var result = JsonConvert.DeserializeObject<T>(res.Content.ReadAsStringAsync().Result);
+              var result = JsonConvert.DeserializeObject<T>(res.Content.ReadAsStringAsync().Result);
 
             return result;
         }

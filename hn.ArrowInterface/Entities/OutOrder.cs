@@ -1,13 +1,11 @@
-﻿using System; 
-using System.ComponentModel.DataAnnotations.Schema; 
+﻿using System;
+using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations.Schema;
 
 namespace hn.ArrowInterface.Entities
 {
-    /// <summary>
-    /// 出库单头
-    /// </summary>
-    [Table("LH_OUTBOUNDORDER")]
-    public class QueryObPage
+    [Table("LH_OUTORDER")]
+    public class OutOrder
     {
         public string lhodoID { get; set; }
         public string lhodoNo { get; set; }
@@ -32,14 +30,11 @@ namespace hn.ArrowInterface.Entities
         public DateTime attr2 { get; set; }
         public DateTime attr3 { get; set; }
         [NotMapped]
-        public QueryObPageDetailed[] saleOrderItemList { get; set; }
-
+        public List<OutOrderDetailed> saleOrderItemList { get; set; }
     }
-    /// <summary>
-    /// 出库单明细
-    /// </summary>
-    [Table("LH_OUTBOUNDORDERDETAILED")]
-    public class QueryObPageDetailed {
+    [Table("LH_OUTORDERDETAILED")]
+    public class OutOrderDetailed
+    {
         public string lhodoID { get; set; }
         public string lhodoRowID { get; set; }
         public string lhprodCode { get; set; }
@@ -57,5 +52,6 @@ namespace hn.ArrowInterface.Entities
         public decimal lhamount { get; set; }
         public decimal lhvolume { get; set; }
     }
-
 }
+
+ 
