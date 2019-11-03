@@ -1,9 +1,10 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 
 namespace hn.AutoSyncLib.Model
 {
-    public class MC_Request_BaseParams:CommonParams
+    public class MC_Request_BaseParams:CommonParams,ICloneable
     {
         public string action { get; set; }
         public string comid { get; set; }
@@ -32,6 +33,24 @@ namespace hn.AutoSyncLib.Model
             });
 
             return result;
+        }
+
+        public object Clone()
+        {
+            var t = this.GetType();
+            var pis = t.GetProperties();
+
+           var result=  Activator.CreateInstance(t);
+
+           foreach (var pi in pis)
+           {
+               var value = pi.GetValue(this, null);
+
+                if(value!=null)
+                    pi.SetValue(result,value);
+           }
+           return result;
+
         }
     }
 }

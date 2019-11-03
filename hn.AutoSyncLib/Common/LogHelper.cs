@@ -1,4 +1,5 @@
 ﻿using System;
+using System.IO;
 using log4net;
 using log4net.Core;
 
@@ -6,19 +7,26 @@ namespace hn.AutoSyncLib.Common
 {
     public class LogHelper
     {
-        private static readonly ILog info = LogManager.GetLogger("EventLog");
-        private static readonly ILog error = LogManager.GetLogger("ExceptionLog");
+        private static readonly ILog logger = LogManager.GetLogger(typeof(LogHelper));
 
-        public static void LogInfo(string msg)
+        private static TextWriter textWriter;
+
+        public static void Info(string msg)
         {
-            info.Info(msg);
-            Console.Out.WriteLineAsync(msg);
+            logger.Info(msg);
+            Console.WriteLine(msg);
         }
 
-        public static void LogErr(Exception ex)
+        public static void Error(Exception ex)
         {
-            error.Error(ex);
-            Console.Out.WriteLineAsync(ex.Message);
+            logger.Error(ex);
+            Console.WriteLine(ex.Message);
+        }
+
+        public static void Init(TextWriter writer)
+        {
+            textWriter = writer;
+            Console.SetOut(textWriter);
         }
     }
 }

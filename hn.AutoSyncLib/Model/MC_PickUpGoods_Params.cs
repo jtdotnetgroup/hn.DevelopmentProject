@@ -3,7 +3,7 @@
     /// <summary>
     /// 提货单接口请求参数
     /// </summary>
-    public class MC_PickUpGoods_Params:MC_Request_BaseParams,CommonRequestParams
+    public class MC_PickUpGoods_Params:MC_Request_BaseParams,CommonRequestParams, IPageInterface
     {
         /// <summary>
         /// 

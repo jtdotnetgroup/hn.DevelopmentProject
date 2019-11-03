@@ -42,7 +42,8 @@ namespace hn.AutoSyncLib.Model
         public void ComputeFID()
         {
             var h256= SHA256.Create();
-            string value = pzhm + rq + pjhm + khhm + cpgg + cpxh + cpsh + cpcm+package+carno;
+            string value = pzhm + pjhm + rq + khhm + cppz + cpgg + cpxh + cpsh + cpcm + package;
+
 
             var hasData = Encoding.UTF8.GetBytes(value);
 

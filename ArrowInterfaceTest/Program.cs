@@ -16,8 +16,23 @@ namespace ArrowInterfaceTest
         static ArrowInterface iInterface = new ArrowInterface();
         static void Main(string[] args)
         {
-            HnObOrderDaySchedule.DoWork();
-            Console.WriteLine(1);
+
+            //TestInventoryJob();
+            //TestProductJob();
+            //TestPolicyJob();
+            //TestQueryObPageJob();
+
+            //TestSaleOrderJob();
+
+            //TestSaleOrderUploadJob();
+
+            TestAcctOAStatusJob();
+
+            //TestSyncInventoryDayJob();
+
+            //TestSyncHnObOrderDay();
+
+            Console.ReadKey();
         }
 
         static void TestLogin()
@@ -124,7 +139,6 @@ namespace ArrowInterfaceTest
             ISyncJob job = new SyncHnObOrderDay();
             job.Sync();
             Console.WriteLine("OK");
-            Console.ReadKey();
         }
 
         static void TestSyncInventoryDayJob()
@@ -132,7 +146,6 @@ namespace ArrowInterfaceTest
             ISyncJob job = new SyncInventoryDayJob();
             job.Sync();
             Console.WriteLine("OK");
-            Console.ReadKey();
         }
     }
 }

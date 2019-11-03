@@ -174,6 +174,7 @@ namespace hn.ArrowInterface
 
             return BaseRequest<AbsRequestResult<SaleOrderUploadResult>>(GlobParams.SaleSaleUpload, token, pars);
         }
+
         /// <summary>
         /// 8、审核状态回传
         /// </summary>
@@ -187,6 +188,7 @@ namespace hn.ArrowInterface
             pars.Add("idStrings", ""); 
 
             return BaseRequest<AbsRequestResult<AcctOAStatus>>(GlobParams.QueryAcctOAStatus, token, pars);
+
         }
         
 

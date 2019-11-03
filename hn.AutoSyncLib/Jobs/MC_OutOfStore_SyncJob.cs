@@ -17,7 +17,7 @@ namespace hn.AutoSyncLib.Jobs
             var mc_outofstore = MC_OutOfStore.GetInstance();
             var token = MC_GetToken.GetInstance().Token;
 
-            LogHelper.LogInfo("出仓单开始同步");
+            LogHelper.Info("出仓单开始同步");
 
             await mc_outofstore.SyncData_Today(token);
         }

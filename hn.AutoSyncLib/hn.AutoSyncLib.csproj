@@ -8,7 +8,7 @@
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
     <RootNamespace>hn.AutoSyncLib</RootNamespace>
-    <AssemblyName>hn.AutoSyncLib</AssemblyName>
+    <AssemblyName>c</AssemblyName>
     <TargetFrameworkVersion>v4.6.1</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <Deterministic>true</Deterministic>
@@ -70,6 +70,7 @@
     <Compile Include="Common\OracleDBContext.cs" />
     <Compile Include="Common\OracleDBHelper.cs" />
     <Compile Include="DAL\MC_OutOfStore_DAL.cs" />
+    <Compile Include="IComputeParams.cs" />
     <Compile Include="ISync.cs" />
     <Compile Include="Jobs\MC_OutOfStoreWithClearTable_SyncJob.cs" />
     <Compile Include="Jobs\MC_PickUpGoodsWithClearTable_SyncJob.cs" />
@@ -84,6 +85,7 @@
     <Compile Include="Model\CommonRequestParams.cs" />
     <Compile Include="Model\IComputeFID.cs" />
     <Compile Include="Model\IFID.cs" />
+    <Compile Include="Model\IPageInterface.cs" />
     <Compile Include="Model\MC_getToken_Params.cs" />
     <Compile Include="Model\MC_getToken_Result.cs" />
     <Compile Include="Model\MC_OutOfStore_Result.cs" />
@@ -94,8 +96,10 @@
     <Compile Include="Model\MC_Request_BaseResult.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Schedule\AutoSync_TwoHours_Schedule.cs" />
+    <Compile Include="Schedule\MC_OutOfStore_SyncSchedule.cs" />
     <Compile Include="Schedule\MC_PickUpGoods_Schedule.cs" />
     <Compile Include="Schedule\MC_OutOfStore_Schedule.cs" />
+    <Compile Include="Schedule\MC_PickUpGoods_SyncSchedule.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />
