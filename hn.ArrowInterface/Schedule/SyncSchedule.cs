@@ -6,7 +6,7 @@ using System.Reflection;
 using System.Threading.Tasks;
 using hn.ArrowInterface.Entities;
 using hn.ArrowInterface.Jobs;
-using hn.AutoSyncLib.Common;
+using hn.Common;
 using Quartz;
 using Quartz.Impl;
 

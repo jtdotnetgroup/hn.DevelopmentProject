@@ -1,5 +1,5 @@
 ﻿using System;
-using hn.AutoSyncLib.Common;
+using hn.Common;
 using Newtonsoft.Json;
 
 namespace hn.ArrowInterface.Jobs

@@ -2,7 +2,7 @@
 using log4net;
 using log4net.Core;
 
-namespace hn.AutoSyncLib.Common
+namespace hn.Common
 {
     public class LogHelper
     {

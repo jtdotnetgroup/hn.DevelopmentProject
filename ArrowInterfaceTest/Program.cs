@@ -7,7 +7,7 @@ using hn.ArrowInterface;
 using hn.ArrowInterface.Entities;
 using hn.ArrowInterface.Jobs;
 using hn.ArrowInterface.Schedule;
-using hn.AutoSyncLib.Common;
+using hn.Common;
 
 namespace ArrowInterfaceTest
 {
@@ -43,55 +43,61 @@ namespace ArrowInterfaceTest
         static void TestQueryLHInventoryPage()
         {
             var token = iInterface.GetToken();
-            var result= iInterface.QueryLHInventoryPage(token.Token);
-            Console.WriteLine("ok");
+            var result = iInterface.QueryLHInventoryPage(token.Token); 
         }
 
         static void TestQueryProdPage()
         {
             var token = iInterface.GetToken();
-            var result = iInterface.QueryProdPage(token.Token);
-            Console.WriteLine("ok");          
+            var result = iInterface.QueryProdPage(token.Token); 
         }
 
         static void TestQueryPolicy()
         {
             var token = iInterface.GetToken();
-            var result = iInterface.QueryPolicy(token.Token);
-
-            Console.WriteLine("OK");
+            var result = iInterface.QueryPolicy(token.Token); 
         }
 
         static void TestDelete()
         {
             OracleDBHelper helper = new OracleDBHelper("");
-            AuthorizationToken token=new AuthorizationToken();
+            AuthorizationToken token = new AuthorizationToken();
 
             helper.Delete<AuthorizationToken>("");
 
         }
-
         static void TestInventoryJob()
         {
-            ISyncJob job=new SyncInventoryJob();
-            job.Sync();
-             Console.WriteLine("OK");
+            ISyncJob job = new SyncInventoryJob();
+            job.Sync(); 
         }
 
         static void TestProductJob()
         {
-            ISyncJob job=new SyncProductJob();
-            job.Sync();
-            Console.WriteLine("OK");
-            Console.ReadKey();
+            ISyncJob job = new SyncProductJob();
+            job.Sync(); 
         }
 
         static void TestPolicyJob()
         {
-            ISyncJob job=new SyncPolicyJob();
-            job.Sync();
-            Console.WriteLine("OK");
-            Console.ReadKey();
+            ISyncJob job = new SyncPolicyJob();
+            job.Sync(); 
+        }
+        /// <summary>
+        /// 7  销售订单上传
+        /// </summary>
+        static void TestSaleOrderUploadJob()
+        {
+            ISyncJob job = new SyncSaleOrderUploadResultJob();
+            job.Sync(); 
+        }
+        /// <summary>
+        /// 8  审核状态回传
+        /// </summary>
+        static void TestAcctOAStatusJob()
+        {
+            ISyncJob job = new SyncAcctOAStatusJob();
+            job.Sync(); 
         }
         /// <summary>
         /// 9  定制订单下载
@@ -99,9 +105,7 @@ namespace ArrowInterfaceTest
         static void TestSaleOrderJob()
         {
             ISyncJob job = new SyncSaleOrderJob();
-            job.Sync();
-            Console.WriteLine("OK");
-            Console.ReadKey();
+            job.Sync(); 
         }
         /// <summary>
         /// 10  物流部开单记录下载
@@ -110,30 +114,7 @@ namespace ArrowInterfaceTest
         {
             ISyncJob job = new SyncQueryObPageJob();
             job.Sync();
-            Console.WriteLine("OK");
-            Console.ReadKey();
         }
-        /// <summary>
-        /// 7  销售订单上传
-        /// </summary>
-        static void TestSaleOrderUploadJob()
-        {
-            ISyncJob job = new SyncSaleOrderUploadResultJob();
-            job.Sync();
-            Console.WriteLine("OK");
-            Console.ReadKey();
-        }
-        /// <summary>
-        /// 7  销售订单上传
-        /// </summary>
-        static void TestAcctOAStatusJob()
-        {
-            ISyncJob job = new SyncAcctOAStatusJob();
-            job.Sync();
-            Console.WriteLine("OK");
-            Console.ReadKey();
-        }
-
         static void TestSyncHnObOrderDay()
         {
             ISyncJob job = new SyncHnObOrderDay();

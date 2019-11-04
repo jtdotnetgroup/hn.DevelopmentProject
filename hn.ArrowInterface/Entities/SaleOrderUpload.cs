@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations.Schema;
 using System.Linq;
 using System.Text;
 
@@ -7,7 +8,8 @@ namespace hn.ArrowInterface.Entities
 {
     /// <summary>
     /// 销售订单上传
-    /// </summary>
+    /// </summary> 
+    [Table("ICPOBILL")]
     public class SaleOrderUpload
     {
         public string orderType { get; set; }
@@ -19,7 +21,7 @@ namespace hn.ArrowInterface.Entities
         public string contractWay { get; set; }
         public string orderProdLine { get; set; }
         public string balanceName { get; set; }
-        public DateTime lHexpectedArrivedDate { get; set; }
+        public string lHexpectedArrivedDate { get; set; }
         public string lHdepositOrNot { get; set; }
         public string lHdiscountType { get; set; }
         public string lHorgName { get; set; }
@@ -37,6 +39,7 @@ namespace hn.ArrowInterface.Entities
     /// <summary>
     /// 明细
     /// </summary>
+    [Table("ICPOBILLENTRY")]
     public class SaleOrderUploadDetailed {
         public string prodCode { get; set; }
         public decimal qTY { get; set; }

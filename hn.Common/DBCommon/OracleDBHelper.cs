@@ -9,7 +9,7 @@ using System.Reflection;
 using System.Text;
 using Oracle.ManagedDataAccess.Client;
 
-namespace hn.AutoSyncLib.Common
+namespace hn.Common
 {
     public class OracleDBHelper
     {
@@ -46,7 +46,7 @@ namespace hn.AutoSyncLib.Common
             catch (Exception e)
             {
                 LogHelper.LogErr(e);
-                LogHelper.LogInfo("SQL:"+sql);
+                LogHelper.LogInfo("SQL:" + sql);
                 throw;
             }
 
@@ -76,7 +76,7 @@ namespace hn.AutoSyncLib.Common
             {
 
                 LogHelper.LogErr(e);
-                LogHelper.LogInfo("SQL:"+sql);
+                LogHelper.LogInfo("SQL:" + sql);
                 throw;
             }
         }
@@ -84,8 +84,8 @@ namespace hn.AutoSyncLib.Common
         public string GetInsertSql<T>()
         {
             var t = typeof(T);
-
-            var pis = t.GetProperties().ToList();
+            
+            var pis = t.GetProperties().Where(p=>p.GetCustomAttributes(true).Count(pi => pi.GetType() == typeof(NotMappedAttribute)) == 0).ToList();
 
             var tableAttr = t.GetCustomAttributes(true).FirstOrDefault(p => p.GetType() == typeof(TableAttribute)) as TableAttribute;
             var tableName = tableAttr.Name;
@@ -98,27 +98,28 @@ namespace hn.AutoSyncLib.Common
 
             pis.ForEach(p =>
             {
-                string fieldName = p.Name;
+                    string fieldName = p.Name;
 
-                if (p.GetCustomAttributes(true).SingleOrDefault(o => o.GetType() == typeof(ColumnAttribute)) is ColumnAttribute column)
-                {
-                    fieldName = column.Name;
-                }
+                    if (p.GetCustomAttributes(true).SingleOrDefault(o => o.GetType() == typeof(ColumnAttribute)) is
+                        ColumnAttribute column)
+                    {
+                        fieldName = column.Name;
+                    }
 
-                fields += fieldName;
+                    fields += fieldName;
 
-                values += ":" + p.Name;
+                    values += ":" + p.Name;
 
-                if (p == pis.Last())
-                {
-                    fields += ")";
-                    values += ")";
-                }
-                else
-                {
-                    fields += ",";
-                    values += ",";
-                }
+                    if (p == pis.Last())
+                    {
+                        fields += ")";
+                        values += ")";
+                    }
+                    else
+                    {
+                        fields += ",";
+                        values += ",";
+                    }
             });
 
             strbuilder.Append(fields);
@@ -131,7 +132,7 @@ namespace hn.AutoSyncLib.Common
         {
             var t = typeof(T);
 
-            var pis = t.GetProperties().ToList();
+            var pis = t.GetProperties().Where(p => p.GetCustomAttributes(true).Count(pi => pi.GetType() == typeof(NotMappedAttribute)) == 0).ToList();
 
             var tableAttr = t.GetCustomAttributes(true).FirstOrDefault(p => p.GetType() == typeof(TableAttribute)) as TableAttribute;
             var tableName = tableAttr.Name;
@@ -143,23 +144,25 @@ namespace hn.AutoSyncLib.Common
 
             pis.ForEach(p =>
             {
-                string fieldName = p.Name;
 
-                if (p.GetCustomAttributes(true).SingleOrDefault(o => o.GetType() == typeof(ColumnAttribute)) is ColumnAttribute column)
-                {
-                    fieldName =  column.Name;
-                }
+                    string fieldName = p.Name;
 
-                fields += fieldName + "=:" + fieldName;
+                    if (p.GetCustomAttributes(true).SingleOrDefault(o => o.GetType() == typeof(ColumnAttribute)) is
+                        ColumnAttribute column)
+                    {
+                        fieldName = column.Name;
+                    }
 
-                if (p == pis.Last())
-                {
-                    fields += " WHERE 1=1 ";
-                }
-                else
-                {
-                    fields += ",";
-                }
+                    fields += fieldName + "=:" + p.Name;
+
+                    if (p == pis.Last())
+                    {
+                        fields += " WHERE 1=1 ";
+                    }
+                    else
+                    {
+                        fields += ",";
+                    }
             });
 
             strbuilder.Append(fields);
@@ -185,7 +188,7 @@ namespace hn.AutoSyncLib.Common
             catch (Exception e)
             {
                 LogHelper.LogErr(e);
-                LogHelper.LogInfo("SQL:"+sql);
+                LogHelper.LogInfo("SQL:" + sql);
                 throw;
             }
 
@@ -200,7 +203,7 @@ namespace hn.AutoSyncLib.Common
 
             foreach (var pi in pis)
             {
-                var keyAttr = pi.GetCustomAttributes(true).Count(p=>p is KeyAttribute)==1;
+                var keyAttr = pi.GetCustomAttributes(true).Count(p => p is KeyAttribute) == 1;
                 if (keyAttr)
                 {
                     keyFieldName = pi.Name;
@@ -255,7 +258,7 @@ namespace hn.AutoSyncLib.Common
             catch (Exception e)
             {
                 LogHelper.LogErr(e);
-                LogHelper.LogInfo("SQL:"+sql);
+                LogHelper.LogInfo("SQL:" + sql);
                 throw;
             }
         }
@@ -267,11 +270,11 @@ namespace hn.AutoSyncLib.Common
             cmd.Connection = conn;
 
             var t = typeof(T);
-            var pis = t.GetProperties().ToList();
+            var pis = t.GetProperties().Where(p=>p.GetCustomAttributes(true).Count(pi=>pi.GetType()==typeof(NotMappedAttribute))==0).ToList();
 
             pis.ForEach(p =>
             {
-                var value = p.GetValue(par,null);
+                var value = p.GetValue(par, null);
                 if (value == null)
                     value = "";
 
@@ -294,7 +297,7 @@ namespace hn.AutoSyncLib.Common
             {
                 pis.ForEach(p =>
                 {
-                    var value = p.GetValue(par,null);
+                    var value = p.GetValue(par, null);
                     if (value == null)
                         value = "";
 
@@ -333,7 +336,7 @@ namespace hn.AutoSyncLib.Common
             catch (Exception e)
             {
                 LogHelper.LogErr(e);
-                LogHelper.LogInfo("SQL:"+sql);
+                LogHelper.LogInfo("SQL:" + sql);
                 throw;
             }
 
@@ -364,7 +367,7 @@ namespace hn.AutoSyncLib.Common
             return table;
         }
 
-        private List<T> DataTableToList<T>(DataTable table) where T:new()
+        private List<T> DataTableToList<T>(DataTable table) where T : new()
         {
             //反射获得泛型类信息
             Type t = typeof(T);
@@ -396,9 +399,9 @@ namespace hn.AutoSyncLib.Common
                     if (pi != null)
                     {
                         object value = row[col.ColumnName];
-                        if (value != null&&!string.IsNullOrEmpty(value.ToString()))
+                        if (value != null && !string.IsNullOrEmpty(value.ToString()))
                         {
-                            pi.SetValue(item,value,null);
+                            pi.SetValue(item, value, null);
                         }
                     }
                 }
@@ -461,7 +464,7 @@ namespace hn.AutoSyncLib.Common
             catch (Exception e)
             {
                 LogHelper.LogErr(e);
-                LogHelper.LogInfo("SQL:"+sql);
+                LogHelper.LogInfo("SQL:" + sql);
                 throw;
             }
 
@@ -496,7 +499,7 @@ namespace hn.AutoSyncLib.Common
             catch (Exception e)
             {
                 LogHelper.LogInfo($"批量更新失败\n异常：{e.Message}");
-                LogHelper.LogInfo("SQL:"+sql);
+                LogHelper.LogInfo("SQL:" + sql);
                 throw;
             }
         }
@@ -505,7 +508,7 @@ namespace hn.AutoSyncLib.Common
         {
             var t = typeof(T);
             var tableAttr = t.GetCustomAttributes(true).FirstOrDefault(p => p.GetType() == typeof(TableAttribute)) as TableAttribute;
-            string tableName = tableAttr==null?t.Name:tableAttr.Name;
+            string tableName = tableAttr == null ? t.Name : tableAttr.Name;
 
             StringBuilder builder = new StringBuilder();
             builder.Append("SELECT * FROM ");
@@ -515,9 +518,9 @@ namespace hn.AutoSyncLib.Common
             return builder.ToString();
         }
 
-        public T Get<T>(object id) where  T:new()
+        public T Get<T>(object id) where T : new()
         {
-            if(conn.State == ConnectionState.Closed)
+            if (conn.State == ConnectionState.Closed)
             {
                 conn.Open();
             }
@@ -525,11 +528,11 @@ namespace hn.AutoSyncLib.Common
             var t = typeof(T);
             var pis = t.GetProperties();
 
-            string keyFieldName="";
+            string keyFieldName = "";
 
             foreach (var pi in pis)
             {
-                var keyAttr= pi.GetCustomAttributes(true).FirstOrDefault(p => p.GetType() == typeof(KeyAttribute));
+                var keyAttr = pi.GetCustomAttributes(true).FirstOrDefault(p => p.GetType() == typeof(KeyAttribute));
 
                 if (keyAttr != null)
                 {
@@ -543,7 +546,7 @@ namespace hn.AutoSyncLib.Common
                 throw new ArgumentException(string.Format("{0}类未指定Key字段", t.Name));
             }
 
-            sql+=string.Format(" AND {0}=",keyFieldName)+id.ToString();
+            sql += string.Format(" AND {0}=", keyFieldName) + id.ToString();
 
             var result = Select<T>(sql).FirstOrDefault();
 
@@ -551,7 +554,7 @@ namespace hn.AutoSyncLib.Common
 
         }
 
-        public List<T> GetAll<T>() where T:new()
+        public List<T> GetAll<T>() where T : new()
         {
             string sql = GetSelectSql<T>();
             return Select<T>(sql);
@@ -564,7 +567,7 @@ namespace hn.AutoSyncLib.Common
             builder.Append(sql);
 
             var t = where.GetType();
-            var pis = t.GetProperties();
+            var pis = t.GetProperties().Where(p=>p.GetCustomAttributes(true).Count(pi=>pi.GetType()==typeof(NotMappedAttribute))==0);
             var cmd = factory.CreateCommand();
 
             foreach (var pi in pis)
@@ -588,7 +591,7 @@ namespace hn.AutoSyncLib.Common
 
                 }
             }
-            sql= builder.ToString();
+            sql = builder.ToString();
             cmd.CommandText = sql;
             cmd.Connection = conn;
             return cmd;
@@ -627,7 +630,7 @@ namespace hn.AutoSyncLib.Common
             return builder.ToString();
         }
 
-        public List<T> GetWhere<T>(T condiction) where T:new()
+        public List<T> GetWhere<T>(T condiction) where T : new()
         {
             if (conn.State == ConnectionState.Closed)
             {

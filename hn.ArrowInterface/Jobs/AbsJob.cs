@@ -1,9 +1,8 @@
 ﻿using System;
 using System.Configuration;
-using System.Linq;
-using System.Threading.Tasks;
+using System.Linq; 
 using hn.ArrowInterface.Entities;
-using hn.AutoSyncLib.Common;
+using hn.Common;
 using Quartz;
 
 namespace hn.ArrowInterface.Jobs
