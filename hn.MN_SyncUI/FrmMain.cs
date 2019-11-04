@@ -10,12 +10,6 @@ namespace hn.MN_SyncUI
     public partial class FrmMain : Form
     {
 
-        const int WM_SYSCOMMAND = 0x112;
-        const int SC_CLOSE = 0xF060;
-        const int SC_MINIMIZE = 0xF020;
-        const int SC_MAXIMIZE = 0xF030;
-        const int SC_RESTORE = 61728;
-
         private static readonly ILog log = LogManager.GetLogger(typeof(FrmMain));
 
         private MC_OutOfStore_SyncSchedule mcOutOfStore;
@@ -30,6 +24,7 @@ namespace hn.MN_SyncUI
             mcOutOfStore=new MC_OutOfStore_SyncSchedule();
             mcPickUpGoods=new MC_PickUpGoods_SyncSchedule();
             btnStop.Enabled = false;
+            this.notifyIcon1.Text = this.Text;
         }
 
         private void btnStart_Click(object sender, EventArgs e)
@@ -44,11 +39,6 @@ namespace hn.MN_SyncUI
 
             btnStart.Enabled = false;
             btnStop.Enabled = true;
-        }
-
-        private void txtLog_TextChanged(object sender, EventArgs e)
-        {
-
         }
 
         private void FrmMain_Load(object sender, EventArgs e)

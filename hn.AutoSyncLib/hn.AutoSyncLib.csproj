@@ -102,7 +102,6 @@
     <Compile Include="Schedule\MC_PickUpGoods_SyncSchedule.cs" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="App.config" />
     <None Include="log4net.config">
       <SubType>Designer</SubType>
     </None>
