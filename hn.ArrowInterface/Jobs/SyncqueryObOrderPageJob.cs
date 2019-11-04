@@ -19,9 +19,11 @@ namespace hn.ArrowInterface.Jobs
                     try
                     {
                         Helper.Insert(row);
-                        foreach (var item in row.saleOrderItemList)
-                        {
-                            Helper.Insert(item);
+                        if (row.saleOrderItemList != null) { 
+                            foreach (var item in row.saleOrderItemList)
+                            {
+                                Helper.Insert(item);
+                            }
                         }
                     }
                     catch (Exception e)

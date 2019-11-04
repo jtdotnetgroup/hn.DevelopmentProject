@@ -16,7 +16,7 @@ namespace ArrowInterfaceTest
         static ArrowInterface iInterface = new ArrowInterface();
         static void Main(string[] args)
         {
-            TestAcctOAStatusJob();
+            TestqueryObOrderPageJob();
             Console.WriteLine("OK");
             Console.ReadKey();
         }
@@ -99,6 +99,22 @@ namespace ArrowInterfaceTest
         static void TestQueryObPageJob()
         {
             ISyncJob job = new SyncQueryObPageJob();
+            job.Sync();
+        }
+        /// <summary>
+        /// 11  发货车牌号下载
+        /// </summary>
+        static void TestobOrderUploadJob()
+        {
+            ISyncJob job = new SyncobOrderUploadJob();
+            job.Sync();
+        }
+        /// <summary>
+        /// 12  出库单下载
+        /// </summary>
+        static void TestqueryObOrderPageJob()
+        {
+            ISyncJob job = new SyncqueryObOrderPageJob();
             job.Sync();
         }
         static void TestSyncHnObOrderDay()
