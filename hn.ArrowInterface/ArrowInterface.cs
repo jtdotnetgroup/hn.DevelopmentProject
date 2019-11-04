@@ -197,6 +197,7 @@ namespace hn.ArrowInterface
             pars.Add("lhplateNo", "赣AJ3622");
             return BaseRequest<AbsRequestResult<bool>>(GlobParams.GoodsCarNoDown, token, pars);
         }
+
         /// <summary>
         /// 12、出库单下载
         /// </summary>

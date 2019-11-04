@@ -45,8 +45,6 @@ namespace hn.AutoSyncLib.Schedule
 
             await scheduler.ScheduleJob(job1, trigger);
 
-
-
         }
 
         /// <summary>

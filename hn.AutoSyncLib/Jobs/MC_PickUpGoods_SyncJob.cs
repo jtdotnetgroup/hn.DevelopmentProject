@@ -15,7 +15,7 @@ namespace hn.AutoSyncLib.Jobs
 
             var mc_outofstore = MC_PickUpGoods.GetInstance();
 
-            LogHelper.LogInfo("开始同步");
+            LogHelper.Info("开始同步");
             await Console.Out.WriteLineAsync("提货单开始同步");
 
             var token = MC_GetToken.GetInstance().Token;

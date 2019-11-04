@@ -7,6 +7,7 @@ using System.Data.Common;
 using System.Linq;
 using System.Reflection;
 using System.Text;
+using log4net;
 using Oracle.ManagedDataAccess.Client;
 
 namespace hn.AutoSyncLib.Common
@@ -45,8 +46,8 @@ namespace hn.AutoSyncLib.Common
             }
             catch (Exception e)
             {
-                LogHelper.LogErr(e);
-                LogHelper.LogInfo("SQL:" + sql);
+                LogHelper.Error(e);
+                LogHelper.Info("SQL:" + sql);
                 throw;
             }
 
@@ -75,8 +76,8 @@ namespace hn.AutoSyncLib.Common
             catch (Exception e)
             {
 
-                LogHelper.LogErr(e);
-                LogHelper.LogInfo("SQL:" + sql);
+                LogHelper.Error(e);
+                LogHelper.Info("SQL:" + sql);
                 throw;
             }
         }
@@ -187,8 +188,8 @@ namespace hn.AutoSyncLib.Common
             }
             catch (Exception e)
             {
-                LogHelper.LogErr(e);
-                LogHelper.LogInfo("SQL:" + sql);
+                LogHelper.Error(e);
+                LogHelper.Info("SQL:" + sql);
                 throw;
             }
 
@@ -232,8 +233,8 @@ namespace hn.AutoSyncLib.Common
             }
             catch (Exception e)
             {
-                LogHelper.LogErr(e);
-                LogHelper.LogInfo("SQL:" + sql);
+                LogHelper.Error(e);
+                LogHelper.Info("SQL:" + sql);
                 throw;
             }
 
@@ -257,8 +258,8 @@ namespace hn.AutoSyncLib.Common
             }
             catch (Exception e)
             {
-                LogHelper.LogErr(e);
-                LogHelper.LogInfo("SQL:" + sql);
+                LogHelper.Error(e);
+                LogHelper.Info("SQL:" + sql);
                 throw;
             }
         }
@@ -335,8 +336,8 @@ namespace hn.AutoSyncLib.Common
             }
             catch (Exception e)
             {
-                LogHelper.LogErr(e);
-                LogHelper.LogInfo("SQL:" + sql);
+                LogHelper.Error(e);
+                LogHelper.Info("SQL:" + sql);
                 throw;
             }
 
@@ -360,7 +361,7 @@ namespace hn.AutoSyncLib.Common
             }
             catch (Exception e)
             {
-                LogHelper.LogInfo($"SQL:{sql}\n异常：{e.Message}");
+                LogHelper.Info($"SQL:{sql}\n异常：{e.Message}");
                 throw;
             }
 
@@ -463,8 +464,8 @@ namespace hn.AutoSyncLib.Common
             }
             catch (Exception e)
             {
-                LogHelper.LogErr(e);
-                LogHelper.LogInfo("SQL:" + sql);
+                LogHelper.Error(e);
+                LogHelper.Info("SQL:" + sql);
                 throw;
             }
 
@@ -493,13 +494,13 @@ namespace hn.AutoSyncLib.Common
                     cmd.ExecuteNonQuery();
                 });
                 var timespan = DateTime.Now - now;
-                LogHelper.LogInfo($"批量更新完成耗时：{timespan.Hours}时{timespan.Minutes}分{timespan.Seconds}秒，共更新{data.Count}条数据");
+                LogHelper.Info($"批量更新完成耗时：{timespan.Hours}时{timespan.Minutes}分{timespan.Seconds}秒，共更新{data.Count}条数据");
                 return true;
             }
             catch (Exception e)
             {
-                LogHelper.LogInfo($"批量更新失败\n异常：{e.Message}");
-                LogHelper.LogInfo("SQL:" + sql);
+                LogHelper.Info($"批量更新失败\n异常：{e.Message}");
+                LogHelper.Info("SQL:" + sql);
                 throw;
             }
         }

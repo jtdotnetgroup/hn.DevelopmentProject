@@ -12,12 +12,9 @@ namespace hn.AutoSyncLib.Jobs
         {
             var mc_outofstore = MC_PickUpGoods.GetInstance();
 
-            LogHelper.LogInfo("开始同步");
-            await Console.Out.WriteLineAsync("提货单开始同步");
-
             mc_outofstore.DeleteAllData<MC_PickUpGoods_ResultInfo>();
 
-            var token = MC_GetToken.GetInstance().Token;
+            var token = MC_GetToken.GetInstance().GetToken().GetAwaiter().GetResult();
             await mc_outofstore.SyncData_EveryDate(token);
         }
     }

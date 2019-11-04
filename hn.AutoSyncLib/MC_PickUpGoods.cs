@@ -10,12 +10,10 @@ using Quartz.Logging;
 
 namespace hn.AutoSyncLib
 {
-    public class MC_PickUpGoods : BaseRequest<MC_PickUpGoods>, ISync
+    public class MC_PickUpGoods : BaseRequest<MC_PickUpGoods, MC_PickUpGoods_Params>, ISync
     {
-
-        
-
-        public async Task<bool> RequestAndWriteData(MC_getToken_Result token, string rq1, string rq2, int pagesize = 1000, int pageindex = 1)
+        public async Task<bool> RequestAndWriteData(MC_getToken_Result token, string rq1, string rq2,
+            int pagesize = 1000, int pageindex = 1)
         {
 
             var startDate = DateTime.Parse(rq1);
@@ -24,34 +22,31 @@ namespace hn.AutoSyncLib
             string parJson = "";
             const string logstr = "参数：{0}\r\n返回结果：总条数【{1}】，当前页共【{2}】条记录\r\n异常：{3}";
 
-            try
+            do
             {
+                rq1 = startDate.ToString("yyyy/MM/dd");
+                rq2 = startDate.AddDays(1) <= endDate ? startDate.AddDays(1).ToString("yyyy/MM/dd") : rq1;
+
+                var pagecount = 0;
+                var total = 0;
+                pageindex = 1;
+
                 do
                 {
-                    rq1 = startDate.ToString("yyyy/MM/dd");
-                    rq2 = startDate.AddDays(1) <= endDate ? startDate.AddDays(1).ToString("yyyy/MM/dd") : rq1;
-
-                    var pagecount = 0;
-                    var total = 0;
-                    pageindex = 1;
-
-                    do
+                    try
                     {
                         var pars = new MC_PickUpGoods_Params(token.token, rq1, rq2, pagesize, pageindex);
 
                         parJson = JsonConvert.SerializeObject(pars);
 
-                        var result =await 
-                            Request<MC_PickUpGoods_Result, MC_PickUpGoods_Params, MC_PickUpGoods_ResultInfo>(
-                                pars);
+                        var result = await  Request<MC_PickUpGoods_Result,  MC_PickUpGoods_ResultInfo>( pars);
 
                         total = result.TotalCount;
 
                         var msg = string.Format(logstr, parJson, total,
                             result.resultInfo.Count, "");
 
-                        LogHelper.LogInfo(msg);
-                        await Console.Out.WriteLineAsync(msg);
+                        LogHelper.Info(msg);
 
                         if (pagecount == 0)
                         {
@@ -62,128 +57,25 @@ namespace hn.AutoSyncLib
                                 pagecount++;
                             }
                         }
+
                         //写入数据库
                         WriteDataToDB(result.resultInfo);
-                        
+
                         pageindex++;
-                    } while (pageindex <= pagecount);
-
-                    startDate = startDate.AddDays(2);
-
-                } while (startDate <= endDate);
-
-                return true;
-            }
-            catch (Exception e)
-            {
-                LogHelper.LogErr(e);
-                return false;
-            }
-
-        }
-
-        public async Task<bool> RequestDataWithMultiThreading(MC_getToken_Result token,
-            string rq1, string rq2, int pagesize = 1000, int pageindex = 1)
-        {
-            var endDate = DateTime.Parse(rq2);
-
-            var currentDate = DateTime.Parse(rq1);
-
-            List<MC_PickUpGoods_Params> pars = new List<MC_PickUpGoods_Params>();
-
-            while (currentDate <= endDate)
-            {
-                var d1 = currentDate.Date.ToString("yyyy/MM/dd");
-                var d2 = currentDate.AddDays(1).Date <= endDate
-                    ? currentDate.AddDays(1).Date.ToString("yyyy/MM/dd")
-                    : endDate.ToString("yyyy/MM/dd");
-
-                pars.Add(new MC_PickUpGoods_Params(token.token, d1, d2, pagesize, pageindex));
-
-                currentDate = currentDate.AddDays(2);
-            }
-
-            List<MC_PickUpGoods_ResultInfo> requestData = await RequestWithThread<MC_PickUpGoods_Result, MC_PickUpGoods_Params, MC_PickUpGoods_ResultInfo>(pars);
-
-            return SaveToDataBase(requestData);
-
-        }
-
-        private bool SaveToDataBase(List<MC_PickUpGoods_ResultInfo> data)
-        {
-            //并发写入
-            var now = DateTime.Now;
-            MC_PickUpGoods_ResultInfo datarow = null;
-            string sql = "SELECT AUTOID FROM MN_THD";
-            var table = helper.Select(sql);
-
-            List<string> idList = new List<string>();
-
-            for (int i = 0; i < table.Rows.Count; i++)
-            {
-                var tbrow = table.Rows[i];
-                idList.Add(tbrow["AUTOID"].ToString());
-            }
-
-            List<MC_PickUpGoods_ResultInfo> inserdata = new List<MC_PickUpGoods_ResultInfo>();
-            List<MC_PickUpGoods_ResultInfo> updatedata = new List<MC_PickUpGoods_ResultInfo>();
-
-            List<List<MC_PickUpGoods_ResultInfo>> inserList = new List<List<MC_PickUpGoods_ResultInfo>>();
-
-            data.ForEach(row =>
-            {
-                if (string.IsNullOrEmpty(row.autoId))
-                {
-                    row.ComputeFID();
-                }
-
-                if (idList.Contains(row.autoId))
-                {
-                    //已存在数据库，放入更新列表
-                    updatedata.Add(row);
-                }
-                else
-                {
-                    //不存在数据库，放入插入列表
-                    row.ComputeFID();
-                    inserdata.Add(row);
-                    //分批插入，每次批量插入1000条
-                    if (inserdata.Count >= 1000)
-                    {
-                        inserList.Add(inserdata);
-                        inserdata = new List<MC_PickUpGoods_ResultInfo>();
                     }
-                }
-            });
-            //最后一批不足1000条待插入的数据
-            inserList.Add(inserdata);
+                    catch (Exception e)
+                    {
+                       LogHelper.Error(e);
+                    }
 
+                } while (pageindex <= pagecount);
 
-            inserList.ForEach(list =>
-            {
-                try
-                {
-                    helper.BatchInsert(list);
-                }
-                catch (Exception e)
-                {
-                    Console.Out.WriteLineAsync($"提货单写入数据库失败\n异常：{e.Message}");
-                }
-            });
+                startDate = startDate.AddDays(2);
 
-            try
-            {
-                helper.BatchUpdate(updatedata, " AND AUTOID=:AUTOID");
-            }
-            catch (Exception ex)
-            {
-                Console.Out.WriteLineAsync($"提货单写入数据库失败\n异常：{ex.Message}");
-            }
-
-            var timespan = DateTime.Now - now;
-            Console.Out.WriteLineAsync($"提货单写入数据库完毕耗时：{timespan.Hours}时{timespan.Minutes}分{timespan.Seconds}秒，共写入{data.Count}条数据");
+            } while (startDate <= endDate);
 
             return true;
+
         }
 
         public async Task<bool> SyncData_EveryDate(MC_getToken_Result token)
@@ -192,26 +84,29 @@ namespace hn.AutoSyncLib
 
             var dbdate = helper.ExecuteScalar(sql, new Dictionary<string, object>()).ToString();
 
-            var startDate = string.IsNullOrEmpty(dbdate) ?
-                DateTime.Parse("2019/08/01").ToString("yyyy/MM/dd")
+            var startDate = string.IsNullOrEmpty(dbdate)
+                ? DateTime.Parse("2019/08/01").ToString("yyyy/MM/dd")
                 : DateTime.Parse(dbdate).Date.ToString("yyyy/MM/dd");
 
-            var endDate = DateTime.Now.Date.AddDays(-1).ToString("yyyy/MM/dd");
-
-            int pageindex = 1;
+            var endDate = DateTime.Now.Date.ToString("yyyy/MM/dd");
 
             //var result = await RequestAndWriteData(token, startDate, endDate, pageSize);
 
-            var result =await RequestAndWriteData(token, startDate, endDate);
+            LogHelper.Info("开始MN_THD同步作业");
+
+            var result = await 
+                 RequestAndWriteData_V2<MC_PickUpGoods_Result, MC_PickUpGoods_ResultInfo>(token, startDate,
+                    endDate);
 
             Call_MN_THD_Update();
+
+            LogHelper.Info("本次MN_THD同步作业结束");
 
             return result;
         }
 
         public async Task<bool> SyncData_Today(MC_getToken_Result token)
         {
-            int pageindex = 1;
             var startDate = DateTime.Now.Date.ToString("yyyy/MM/dd");
             var result = await RequestAndWriteData(token, startDate, startDate);
 
@@ -226,23 +121,36 @@ namespace hn.AutoSyncLib
             helper.ExecuteNonQuery("call mn_thd_update()", new Dictionary<string, object>());
         }
 
-        public async Task<int> ClearTable()
+
+        /// <summary>
+        /// 计算从开始日期到结束日期所需要的请求次数，并返回请求参数列表
+        /// </summary>
+        /// <param name="token"></param>
+        /// <param name="rq1"></param>
+        /// <param name="rq2"></param>
+        /// <param name="pageSize"></param>
+        /// <param name="pageIndex"></param>
+        /// <returns></returns>
+        protected override List<MC_PickUpGoods_Params> ComputeParams(string token, string rq1, string rq2, int pageSize,
+            int pageIndex)
         {
-            string sql = "SELECT MAX(RQ) FROM MN_THD";
-            var dbdate = helper.ExecuteScalar(sql, new Dictionary<string, object>()).ToString();
+            var startDate = DateTime.Parse(rq1);
+            var endDate = DateTime.Parse(rq2);
 
-            if (!string.IsNullOrEmpty(dbdate))
+            List<MC_PickUpGoods_Params> result = new List<MC_PickUpGoods_Params>();
+
+            do
             {
-                var maxdate = DateTime.Parse(dbdate).Date;
-                if (DateTime.Today.Date.AddDays(-1) > maxdate)
-                {
-                    return helper.Delete<MC_PickUpGoods_ResultInfo>("");
-                }
+                var start = startDate.ToString("yyyy/MM/dd");
+                var end = startDate.AddDays(1) <= endDate ? startDate.AddDays(1).ToString("yyyy/MM/dd") : endDate.ToString("yyyy/MM/dd");
 
-                return 0;
-            }
+                result.Add(new MC_PickUpGoods_Params(token, start, end, pageSize, pageIndex));
 
-            return helper.Delete<MC_PickUpGoods_ResultInfo>("");
+                startDate = startDate.AddDays(2);
+
+            } while (startDate <= endDate);
+
+            return result;
         }
     }
 }

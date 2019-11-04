@@ -120,13 +120,15 @@ namespace ArrowInterfaceTest
         static void TestSyncHnObOrderDay()
         {
             ISyncJob job = new SyncHnObOrderDay();
-            job.Sync(); 
+            job.Sync();
+            Console.WriteLine("OK");
         }
 
         static void TestSyncInventoryDayJob()
         {
             ISyncJob job = new SyncInventoryDayJob();
-            job.Sync(); 
+            job.Sync();
+            Console.WriteLine("OK");
         }
     }
 }

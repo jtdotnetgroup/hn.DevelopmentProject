@@ -15,6 +15,7 @@ namespace hn.AutoSyncLib.Schedule
     {
        static ISchedulerFactory factory = new StdSchedulerFactory();
 
+
        /// <summary>
        /// 此方法为每天12：30运行一次，清空全表
        /// </summary>
