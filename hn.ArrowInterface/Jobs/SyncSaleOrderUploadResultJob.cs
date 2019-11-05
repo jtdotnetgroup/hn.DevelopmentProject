@@ -2,6 +2,7 @@
 using hn.Common;
 using Newtonsoft.Json;
 using hn.ArrowInterface.Entities;
+using System.Collections.Generic;
 
 namespace hn.ArrowInterface.Jobs
 {
@@ -10,8 +11,10 @@ namespace hn.ArrowInterface.Jobs
         public override bool Sync()
         {
             var token = GetToken();
-
-            var result = Interface.SaleOrderUpload(token.Token);
+            //ICPOBILL m = Helper.Get<ICPOBILL>("SELECT * FROM ICPOBILL LIMIT 1");
+            List<ICPOBILLENTRY> mEntity = Helper.Select<ICPOBILLENTRY>("SELECT * FROM ICPOBILL ");
+            SaleOrderUpload SelResult = new SaleOrderUpload();
+            var result = Interface.SaleOrderUpload(token.Token, SelResult);
 
             if (result.Success)
             { 

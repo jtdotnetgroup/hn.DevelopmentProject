@@ -88,49 +88,50 @@ namespace hn.ArrowInterface
         /// </summary>
         /// <param name="token"></param>
         /// <returns></returns>
-        public AbsRequestResult<Order> SaleOrderUpload(string token)
+        public AbsRequestResult<Order> SaleOrderUpload(string token, SaleOrderUpload saleOrderUpload)
         {
-            SaleOrderUpload saleOrderUpload = new SaleOrderUpload()
-            {
-                orderType = "常规订单",
-                acctCode = "AW04298",
-                tradeCompanyName = "广东乐华智能卫浴有限公司",
-                billIdName = "测试法人",
-                salesChannel = "零售",
-                lHbuType = "常规",
-                contractWay = "经销",
-                orderProdLine = "卫浴",
-                balanceName = "测试-箭牌卫浴事业部-卫浴-零售",
-                lHexpectedArrivedDate = DateTime.Now.AddDays(1).ToString("yyyy-MM-dd"),
-                lHdepositOrNot = "N",
-                lHdiscountType = "底价不变",  
-                lHorgName = "箭牌卫浴事业部",
-                submissionDate = DateTime.Now,
-                source = "华耐系统",
-                lHOutSystemID = "testorder001",
-                lHOutSystemOd = "dsdd-9999901",
-                lHpromotionPolicyID = "", 
-                consignee = "1",
-                lHoutboundOrder = "",
-                lHAdvertingMoneyType = "PayForGoods",
-                remarks = "",
-                saleOrderItemList = new SaleOrderUploadDetailed[] {
-                    new SaleOrderUploadDetailed {
-                        prodCode = "17103103036416",
-                        qTY = 10,
-                        lHrowSource = "华耐系统",
-                        lHOutSystemID = "testorder001",
-                        lHOutSystemLineID = "testorderitem001",
-                        lHcomments = "",
-                        lHDctpolicyItemId = "W-57ASBU2SD"
-                    }
-                }
-            }; 
+            //saleOrderUpload = new SaleOrderUpload()
+            //{
+            //    orderType = "常规订单",
+            //    acctCode = "AW04298",
+            //    tradeCompanyName = "广东乐华智能卫浴有限公司",
+            //    billIdName = "测试法人",
+            //    salesChannel = "零售",
+            //    lHbuType = "常规",
+            //    contractWay = "经销",
+            //    orderProdLine = "卫浴",
+            //    balanceName = "测试-箭牌卫浴事业部-卫浴-零售",
+            //    lHexpectedArrivedDate = DateTime.Now.AddDays(1).ToString("yyyy-MM-dd"),
+            //    lHdepositOrNot = "N",
+            //    lHdiscountType = "底价不变",  
+            //    lHorgName = "箭牌卫浴事业部",
+            //    submissionDate = DateTime.Now,
+            //    source = "华耐系统",
+            //    lHOutSystemID = "testorder001",
+            //    lHOutSystemOd = "dsdd-9999901",
+            //    lHpromotionPolicyID = "", 
+            //    consignee = "1",
+            //    lHoutboundOrder = "",
+            //    lHAdvertingMoneyType = "PayForGoods",
+            //    remarks = "",
+            //    saleOrderItemList = new SaleOrderUploadDetailed[] {
+            //        new SaleOrderUploadDetailed {
+            //            prodCode = "17103103036416",
+            //            qTY = 10,
+            //            lHrowSource = "华耐系统",
+            //            lHOutSystemID = "testorder001",
+            //            lHOutSystemLineID = "testorderitem001",
+            //            lHcomments = "",
+            //            lHDctpolicyItemId = "W-57ASBU2SD"
+            //        }
+            //    }
+            //};
+             
 
             return BaseRequest<AbsRequestResult<Order>>(GlobParams.SaleSaleUpload, token, saleOrderUpload);
         }
         /// <summary>
-        /// 8、审核状态回传
+        /// 8、审核状态回传3
         /// </summary>
         /// <param name="token"></param>
         /// <returns></returns>
@@ -170,8 +171,7 @@ namespace hn.ArrowInterface
         /// <param name="token"></param>
         /// <returns></returns>
         public AbsRequestResult<QueryObPage> QueryObPage(string token)
-        {
-            string url = GlobParams.QueryCustomOrderPage;
+        { 
             string dealerCode = ConfigurationManager.AppSettings["dealerCode"];
 
             Dictionary<string, object> pars = new Dictionary<string, object>();
@@ -183,7 +183,7 @@ namespace hn.ArrowInterface
             pars.Add("attr2", attr2.ToString("yyyy-MM-dd HH:mm:ss"));
             pars.Add("attr3", attr3.ToString("yyyy-MM-dd HH:mm:ss"));
 
-            return BaseRequest<AbsRequestResult<QueryObPage>>(url, token, pars);
+            return BaseRequest<AbsRequestResult<QueryObPage>>(GlobParams.QueryCustomOrderPage, token, pars);
         }
         /// <summary>
         /// 11、发货车牌号下载

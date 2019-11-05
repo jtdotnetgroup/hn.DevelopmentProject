@@ -98,6 +98,8 @@
     <Compile Include="Entities\HnInventoryBatchInsertEntity.cs" />
     <Compile Include="Entities\HnObOrderBatchInsertEntity.cs" />
     <Compile Include="Entities\IComputeFID.cs" />
+    <Compile Include="Entities\ICPOBILL.cs" />
+    <Compile Include="Entities\ICPOBILLENTRY.cs" />
     <Compile Include="Entities\OutOrder.cs" />
     <Compile Include="Entities\SyncJob_Definition.cs" />
     <Compile Include="Entities\QueryObPage.cs" />
