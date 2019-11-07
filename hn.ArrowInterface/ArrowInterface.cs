@@ -155,13 +155,9 @@ namespace hn.ArrowInterface
             string dealerCode = ConfigurationManager.AppSettings["dealerCode"];
 
             Dictionary<string, object> pars = new Dictionary<string, object>();
-            pars.Add("attr1", dealerCode);
-
-            DateTime attr2 = DateTime.Parse("2019-09-10 15:01:26");
-            var attr3 = attr2.AddDays(10);
-
-            pars.Add("attr2", attr2.ToString("yyyy-MM-dd HH:mm:ss"));
-            pars.Add("attr3", attr3.ToString("yyyy-MM-dd HH:mm:ss"));
+            pars.Add("attr1", dealerCode);  
+            pars.Add("attr2", DateTime.Parse("2019-01-02 10:28:54").ToString("yyyy-MM-dd HH:mm:ss"));
+            pars.Add("attr3", DateTime.Parse("2019-11-06 16:01:37").ToString("yyyy-MM-dd HH:mm:ss"));
 
             return BaseRequest<AbsRequestResult<SaleOrder>>(GlobParams.QueryCustomOrderPage, token, pars);
         }
@@ -175,13 +171,9 @@ namespace hn.ArrowInterface
             string dealerCode = ConfigurationManager.AppSettings["dealerCode"];
 
             Dictionary<string, object> pars = new Dictionary<string, object>();
-            pars.Add("dealerCode", dealerCode);
-
-            DateTime attr2 = DateTime.Parse("2019-10-12 15:01:26");
-            var attr3 = attr2.AddDays(10);
-
-            pars.Add("attr2", attr2.ToString("yyyy-MM-dd HH:mm:ss"));
-            pars.Add("attr3", attr3.ToString("yyyy-MM-dd HH:mm:ss"));
+            pars.Add("dealerCode", dealerCode); 
+            pars.Add("attr2", DateTime.Parse("2019-01-02 10:28:54").ToString("yyyy-MM-dd HH:mm:ss"));
+            pars.Add("attr3", DateTime.Parse("2019-11-06 16:01:37").ToString("yyyy-MM-dd HH:mm:ss"));
 
             return BaseRequest<AbsRequestResult<QueryObPage>>(GlobParams.QueryObPage, token, pars);
         }
@@ -205,10 +197,11 @@ namespace hn.ArrowInterface
         /// <returns></returns>
         public AbsRequestResult<OutOrder> queryObOrderPage(string token)
         {
+            string dealerCode = ConfigurationManager.AppSettings["dealerCode"];
             Dictionary<string, object> pars = new Dictionary<string, object>();
-            pars.Add("attr2", DateTime.Parse("2019-09-10 15:01:26").ToString("yyyy-MM-dd HH:mm:ss"));
-            pars.Add("attr3", DateTime.Parse("2019-09-10 15:01:26").AddDays(10).ToString("yyyy-MM-dd HH:mm:ss"));
-            pars.Add("dealerCode", 123);
+            pars.Add("dealerCode", dealerCode);
+            pars.Add("attr2", DateTime.Parse("2019-01-02 10:28:54").ToString("yyyy-MM-dd HH:mm:ss"));
+            pars.Add("attr3", DateTime.Parse("2019-11-06 16:01:37").ToString("yyyy-MM-dd HH:mm:ss"));
             return BaseRequest<AbsRequestResult<OutOrder>>(GlobParams.OutOrderDown, token, pars);
         }
         /// <summary>

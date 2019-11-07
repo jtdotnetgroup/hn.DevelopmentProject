@@ -16,8 +16,12 @@ namespace ArrowInterfaceTest
         static ArrowInterface iInterface = new ArrowInterface();
         static void Main(string[] args)
         {
-            TestQueryObPageJob();
-            Console.WriteLine("OK");
+            DateTime d1 = DateTime.Now;
+            TestqueryObOrderPageJob();
+            DateTime d2 = DateTime.Now;
+            TimeSpan d3 = d2.Subtract(d1);
+            string msg = "相差:" + d3.Days.ToString() + "天" + d3.Hours.ToString() + "小时" + d3.Minutes.ToString() + "分钟" + d3.Seconds.ToString() + "秒";
+            Console.WriteLine(msg);
             Console.ReadKey();
         }
 
