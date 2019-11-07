@@ -23,8 +23,8 @@ namespace hn.ArrowInterface.Jobs
                     catch (Exception e)
                     {
                         string message = string.Format("发货车牌号下载失败：{0}", JsonConvert.SerializeObject(row));
-                        LogHelper.LogInfo(message);
-                        LogHelper.LogErr(e);
+                        LogHelper.Info(message);
+                        LogHelper.Error(e);
                     }
                 }
 

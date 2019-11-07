@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Linq;
 using hn.Common;
 using Newtonsoft.Json;
 
@@ -10,8 +11,7 @@ namespace hn.ArrowInterface.Jobs
         {
             var token = GetToken();
             var result = Interface.QueryPolicy(token.Token);
-
-            foreach (var row in result.Rows)
+            foreach (var row in result.Rows.AsParallel())
             {
                 try
                 {
@@ -20,8 +20,8 @@ namespace hn.ArrowInterface.Jobs
                 catch (Exception e)
                 {
                     string msg = string.Format("插入政策记录失败：{0}", JsonConvert.SerializeObject(row));
-                    LogHelper.LogInfo(msg);
-                    LogHelper.LogErr(e);
+                    LogHelper.Info(msg);
+                    LogHelper.Error(e);
                 }
             }
 

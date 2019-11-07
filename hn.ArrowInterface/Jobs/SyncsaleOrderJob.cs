@@ -26,8 +26,8 @@ namespace hn.ArrowInterface.Jobs
                     catch (Exception e)
                     {
                         string message = string.Format("定制订单&常规工程订单&计划工程订单下载失败：{0}", JsonConvert.SerializeObject(row));
-                        LogHelper.LogInfo(message);
-                        LogHelper.LogErr(e);
+                        LogHelper.Info(message);
+                        LogHelper.Error(e);
                     }
                 }
 

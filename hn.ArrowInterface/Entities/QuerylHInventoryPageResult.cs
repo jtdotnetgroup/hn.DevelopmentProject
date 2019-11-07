@@ -1,10 +1,8 @@
-﻿using System;
+﻿using hn.AutoSyncLib.Model;
+using System;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
-using System.Runtime.Remoting.Messaging;
 using System.Text;
-using hn.AutoSyncLib.Model;
-using OracleInternal.Secure.Network;
 using SHA256 = System.Security.Cryptography.SHA256;
 
 namespace hn.ArrowInterface.Entities
@@ -23,6 +21,7 @@ namespace hn.ArrowInterface.Entities
         public string LHProdLine { get; set; }
         public string LHProdType { get; set; }
         public string LHProdModel { get; set; }
+        public string lHProdColor { get; set; }
 
         [Key]
         public string FID { get; set; }

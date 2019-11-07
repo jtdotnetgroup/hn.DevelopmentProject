@@ -41,7 +41,7 @@ namespace hn.ArrowInterface
             Dictionary<string,object> pars=new Dictionary<string, object>();
             pars.Add("dealerCode", dealerCode);
 
-            return BaseRequest<AbsRequestResult<QuerylHInventoryPageResult>>(url, token, pars);
+            return BaseRequest<AbsRequestResult<QuerylHInventoryPageResult>,QuerylHInventoryPageResult>(url, token, pars);
         }
 
         /// <summary>
@@ -49,7 +49,7 @@ namespace hn.ArrowInterface
         /// </summary>
         /// <param name="token"></param>
         /// <returns></returns>
-        public AbsRequestResult<QueryProdPageResult> QueryProdPage(string token)
+        public AbsRequestResult<LH_Product> QueryProdPage(string token)
         {
             string url = GlobParams.Item_QueryProdPage;
 
@@ -57,13 +57,13 @@ namespace hn.ArrowInterface
             string dealerCode = ConfigurationManager.AppSettings["dealerCode"];
             pars.Add("attr1",dealerCode);
 
-            DateTime attr2 = DateTime.Parse("2019-03-27 10:30:28");
-            var attr3 = attr2.AddDays(30);
+            DateTime attr2 = DateTime.Parse("2019-01-02 10:28:54");
+            var attr3 = DateTime.Parse(("2019-11-06 16:01:37"));
 
             pars.Add("attr2", attr2.ToString("yyyy-MM-dd HH:mm:ss"));
             pars.Add("attr3",attr3.ToString("yyyy-MM-dd HH:mm:ss"));
 
-            return BaseRequest<AbsRequestResult<QueryProdPageResult>>(url, token, pars);
+            return BaseRequest<AbsRequestResult<LH_Product>,LH_Product>(url, token, pars);
 
         }
 
@@ -80,7 +80,7 @@ namespace hn.ArrowInterface
             Dictionary<string, object> pars = new Dictionary<string, object>();
             pars.Add("acctKey", dealerCode);
 
-            return BaseRequest<AbsRequestResult<QueryPolicy>>(url, token, pars);
+            return BaseRequest<AbsRequestResult<QueryPolicy>,QueryPolicy>(url, token, pars);
         }
         
         /// <summary>

@@ -27,8 +27,8 @@ namespace hn.ArrowInterface.Jobs
                     catch (Exception e)
                     {
                         string message = string.Format("出库单下载失败：{0}", JsonConvert.SerializeObject(row));
-                        LogHelper.LogInfo(message);
-                        LogHelper.LogErr(e);
+                        LogHelper.Info(message);
+                        LogHelper.Error(e);
                     }
                 }
 

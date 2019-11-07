@@ -17,8 +17,11 @@ namespace ArrowInterfaceTest
         static void Main(string[] args)
         {
 
+
+            LogHelper.Init(Console.Out);
+
             //TestInventoryJob();
-            //TestProductJob();
+            TestProductJob();
             //TestPolicyJob();
             //TestQueryObPageJob();
 
@@ -26,12 +29,14 @@ namespace ArrowInterfaceTest
 
             //TestSaleOrderUploadJob();
 
-            TestAcctOAStatusJob();
+            //TestAcctOAStatusJob();
 
             //TestSyncInventoryDayJob();
 
             //TestSyncHnObOrderDay();
 
+            //TestQueryProdPage();
+            Console.WriteLine("OK");
             Console.ReadKey();
         }
 

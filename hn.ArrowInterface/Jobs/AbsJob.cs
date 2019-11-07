@@ -14,6 +14,7 @@ namespace hn.ArrowInterface.Jobs
         protected int Interval { get; set; }
         protected string JobName { get; set; }
 
+    
         public AbsJob()
         {
             string conStr = ConfigurationManager.ConnectionStrings["DbConnection"].ConnectionString;

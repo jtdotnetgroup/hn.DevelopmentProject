@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Oracle.ManagedDataAccess.Client;
+using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
@@ -7,7 +8,6 @@ using System.Data.Common;
 using System.Linq;
 using System.Reflection;
 using System.Text;
-using Oracle.ManagedDataAccess.Client;
 
 namespace hn.Common
 {
@@ -45,8 +45,8 @@ namespace hn.Common
             }
             catch (Exception e)
             {
-                LogHelper.LogErr(e);
-                LogHelper.LogInfo("SQL:" + sql);
+                LogHelper.Error(e);
+                LogHelper.Info("SQL:" + sql);
                 throw;
             }
 
@@ -75,8 +75,8 @@ namespace hn.Common
             catch (Exception e)
             {
 
-                LogHelper.LogErr(e);
-                LogHelper.LogInfo("SQL:" + sql);
+                LogHelper.Error(e);
+                LogHelper.Info("SQL:" + sql);
                 throw;
             }
         }
@@ -87,7 +87,7 @@ namespace hn.Common
             
             var pis = t.GetProperties().Where(p=>p.GetCustomAttributes(true).Count(pi => pi.GetType() == typeof(NotMappedAttribute)) == 0).ToList();
 
-            var tableAttr = t.GetCustomAttributes(true).FirstOrDefault(p => p.GetType() == typeof(TableAttribute)) as TableAttribute;
+            var tableAttr = t.GetCustomAttributes(true).FirstOrDefault(p => p.GetType() == typeof(System.ComponentModel.DataAnnotations.Schema.TableAttribute)) as TableAttribute;
             var tableName = tableAttr.Name;
 
             var strbuilder = new StringBuilder();
@@ -187,8 +187,8 @@ namespace hn.Common
             }
             catch (Exception e)
             {
-                LogHelper.LogErr(e);
-                LogHelper.LogInfo("SQL:" + sql);
+                LogHelper.Error(e);
+                LogHelper.Info("SQL:" + sql);
                 throw;
             }
 
@@ -232,8 +232,8 @@ namespace hn.Common
             }
             catch (Exception e)
             {
-                LogHelper.LogErr(e);
-                LogHelper.LogInfo("SQL:" + sql);
+                LogHelper.Error(e);
+                LogHelper.Info("SQL:" + sql);
                 throw;
             }
 
@@ -257,8 +257,8 @@ namespace hn.Common
             }
             catch (Exception e)
             {
-                LogHelper.LogErr(e);
-                LogHelper.LogInfo("SQL:" + sql);
+                LogHelper.Error(e);
+                LogHelper.Info("SQL:" + sql);
                 throw;
             }
         }
@@ -335,8 +335,8 @@ namespace hn.Common
             }
             catch (Exception e)
             {
-                LogHelper.LogErr(e);
-                LogHelper.LogInfo("SQL:" + sql);
+                LogHelper.Error(e);
+                LogHelper.Info("SQL:" + sql);
                 throw;
             }
 
@@ -360,7 +360,7 @@ namespace hn.Common
             }
             catch (Exception e)
             {
-                LogHelper.LogInfo($"SQL:{sql}\n异常：{e.Message}");
+                LogHelper.Info($"SQL:{sql}\n异常：{e.Message}");
                 throw;
             }
 
@@ -463,8 +463,8 @@ namespace hn.Common
             }
             catch (Exception e)
             {
-                LogHelper.LogErr(e);
-                LogHelper.LogInfo("SQL:" + sql);
+                LogHelper.Error(e);
+                LogHelper.Info("SQL:" + sql);
                 throw;
             }
 
@@ -493,13 +493,13 @@ namespace hn.Common
                     cmd.ExecuteNonQuery();
                 });
                 var timespan = DateTime.Now - now;
-                LogHelper.LogInfo($"批量更新完成耗时：{timespan.Hours}时{timespan.Minutes}分{timespan.Seconds}秒，共更新{data.Count}条数据");
+                LogHelper.Info($"批量更新完成耗时：{timespan.Hours}时{timespan.Minutes}分{timespan.Seconds}秒，共更新{data.Count}条数据");
                 return true;
             }
             catch (Exception e)
             {
-                LogHelper.LogInfo($"批量更新失败\n异常：{e.Message}");
-                LogHelper.LogInfo("SQL:" + sql);
+                LogHelper.Info($"批量更新失败\n异常：{e.Message}");
+                LogHelper.Info("SQL:" + sql);
                 throw;
             }
         }
