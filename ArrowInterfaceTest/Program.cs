@@ -16,7 +16,7 @@ namespace ArrowInterfaceTest
         static ArrowInterface iInterface = new ArrowInterface();
         static void Main(string[] args)
         {
-            TestSaleOrderUploadJob();
+            TestQueryObPageJob();
             Console.WriteLine("OK");
             Console.ReadKey();
         }

@@ -6,34 +6,35 @@ using System.Collections.Generic;
 
 namespace hn.ArrowInterface.Jobs
 {
-   public class SyncSaleOrderUploadResultJob : AbsJob
+    public class SyncSaleOrderUploadResultJob : AbsJob
     {
         public override bool Sync()
         {
             var token = GetToken();
             //ICPOBILL m = Helper.Get<ICPOBILL>("SELECT * FROM ICPOBILL LIMIT 1");
-            List<ICPOBILLENTRY> mEntity = Helper.Select<ICPOBILLENTRY>("SELECT * FROM ICPOBILL ");
+            //List<ICPOBILLENTRY> mEntity = Helper.Select<ICPOBILLENTRY>("SELECT * FROM ICPOBILL ");
             SaleOrderUpload SelResult = new SaleOrderUpload();
+
+
+
             var result = Interface.SaleOrderUpload(token.Token, SelResult);
 
             if (result.Success)
-            { 
-                var row = result.Order;
-                if (row != null)
+            {
+                var tmp = result.item;
+                if (tmp != null)
                 {
                     try
                     {
-                        Helper.Delete<Order>(row.KeyId());
-                        Helper.Insert(row);
-                        foreach (var item in row.saleOrderItemList) {
-                            item.lHOutSystemID = row.lHOutSystemID;
-                            Helper.Delete<SaleOrderItemList>(row.KeyId());
-                            Helper.Insert(item);
+                        foreach (var row in tmp)
+                        {
+                            Helper.Delete<Order>(row.KeyId());
+                            Helper.Insert(row);
                         }
                     }
                     catch (Exception e)
                     {
-                        string message = string.Format("销售订单上传结果：{0}", JsonConvert.SerializeObject(row));
+                        string message = string.Format("销售订单上传结果：{0}", JsonConvert.SerializeObject(tmp));
                         LogHelper.LogInfo(message);
                         LogHelper.LogErr(e);
                         return false;

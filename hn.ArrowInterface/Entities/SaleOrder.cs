@@ -11,7 +11,8 @@ namespace hn.ArrowInterface.Entities
     /// </summary>
     [Table("LH_SALEORDER")]
     public class SaleOrder
-    {
+    { 
+        public string Id { get; set; }
         public string orderId { get; set; }
         public string orderNo { get; set; }
         public string acctCode { get; set; }
@@ -55,6 +56,10 @@ namespace hn.ArrowInterface.Entities
         public DateTime attr3 { get; set; }
         [NotMapped]
         public SaleOrderDetailed[] saleOrderItemList { get; set; }
+        public string KeyId()
+        {
+            return " AND orderId = '" + orderId + "'";
+        }
     }
     /// <summary>
     /// 销售订单明细
@@ -62,6 +67,8 @@ namespace hn.ArrowInterface.Entities
     [Table("LH_SALEORDERDETAILED")]
     public class SaleOrderDetailed
     {
+        public string Id { get; set; }
+        public string orderId { get; set; }
         public string prodCode { get; set; }
         public string prodName { get; set; }
         public string lHcustomProdCode { get; set; }

@@ -8,6 +8,7 @@ namespace hn.ArrowInterface.Entities
             Rows = new List<T>(); 
         }
         public List<T> Rows { get; set; }
+         
         public T Order { get; set; } 
         //
         public List<T> item { get; set; }

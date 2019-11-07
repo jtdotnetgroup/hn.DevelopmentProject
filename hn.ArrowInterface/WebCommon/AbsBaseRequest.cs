@@ -5,6 +5,7 @@ using System.Net.Http;
 using System.Net.Http.Headers;
 using System.Text;
 using Newtonsoft.Json;
+using Newtonsoft.Json.Serialization;
 
 namespace hn.ArrowInterface.WebCommon
 {
@@ -52,8 +53,12 @@ namespace hn.ArrowInterface.WebCommon
             if (Method == "POST")
             {
                 var res = client.PostAsync(url, content).Result;
-                var result = JsonConvert.DeserializeObject<T>(res.Content.ReadAsStringAsync().Result);
-
+                var serializerSettings = new JsonSerializerSettings
+                {
+                    // 设置为驼峰命名
+                    ContractResolver = new CamelCasePropertyNamesContractResolver()
+                };
+                var result = JsonConvert.DeserializeObject<T>(res.Content.ReadAsStringAsync().Result, serializerSettings);
                 return result;
             }
             else
@@ -64,7 +69,12 @@ namespace hn.ArrowInterface.WebCommon
                 }
                 url += "k=1";
                 var res = client.GetAsync(url).Result;
-                var result = JsonConvert.DeserializeObject<T>(res.Content.ReadAsStringAsync().Result);
+                var serializerSettings = new JsonSerializerSettings
+                {
+                    // 设置为驼峰命名
+                    ContractResolver = new CamelCasePropertyNamesContractResolver()
+                };
+                var result = JsonConvert.DeserializeObject<T>(res.Content.ReadAsStringAsync().Result, serializerSettings);
 
                 return result;
             }
