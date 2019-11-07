@@ -9,6 +9,7 @@ using System.Threading.Tasks;
 using hn.ArrowInterface.Entities;
 using hn.Common;
 using Newtonsoft.Json;
+using Newtonsoft.Json.Serialization;
 
 namespace hn.ArrowInterface.WebCommon
 {

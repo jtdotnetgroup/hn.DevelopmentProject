@@ -429,7 +429,24 @@ namespace hn.Common
 
             return result;
         }
+        public T Get<T>(string sql) where T : new()
+        {
+            if (conn.State == ConnectionState.Closed)
+            {
+                conn.Open();
+            }
+            var cmd = factory.CreateCommand();
+            cmd.CommandText = sql;
+            cmd.Connection = conn;
+            var da = factory.CreateDataAdapter();
+            da.SelectCommand = cmd;
+            DataTable table = new DataTable();
+            da.Fill(table);
 
+            var result = DataTableToList<T>(table).FirstOrDefault();
+
+            return result;
+        }
         public bool BatchInsert<T>(List<T> data)
         {
             if (data == null || data.Count == 0)

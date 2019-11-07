@@ -10,6 +10,8 @@ namespace hn.ArrowInterface.Entities
     public class QueryObPage
     {
         public string lhodoID { get; set; }
+        [NotMapped]
+        public string lhodoId { get; set; }
         public string lhodoNo { get; set; }
         public decimal lhtotalNumber { get; set; }
         public string lhodoType { get; set; }
@@ -32,8 +34,11 @@ namespace hn.ArrowInterface.Entities
         public DateTime attr2 { get; set; }
         public DateTime attr3 { get; set; }
         [NotMapped]
-        public QueryObPageDetailed[] saleOrderItemList { get; set; }
-
+        public QueryObPageDetailed[] items { get; set; }
+        public string KeyId()
+        {
+            return " AND lhodoID = '" + lhodoID + "'";
+        }
     }
     /// <summary>
     /// 出库单明细
@@ -56,6 +61,10 @@ namespace hn.ArrowInterface.Entities
         public decimal lhdiscountPrice { get; set; }
         public decimal lhamount { get; set; }
         public decimal lhvolume { get; set; }
+        public string KeyId()
+        {
+            return " AND lhodoID = '" + lhodoID + "'";
+        }
     }
 
 }

@@ -1,4 +1,5 @@
 ﻿using System;
+using hn.ArrowInterface.Entities;
 using hn.Common;
 using Newtonsoft.Json;
 
@@ -18,10 +19,14 @@ namespace hn.ArrowInterface.Jobs
                 {
                     try
                     {
+                        Helper.Delete<OutOrder>(row.KeyId());
+                        Helper.Delete<OutOrderDetailed>(row.KeyId());
                         Helper.Insert(row);
-                        foreach (var item in row.saleOrderItemList)
-                        {
-                            Helper.Insert(item);
+                        if (row.items != null) { 
+                            foreach (var item in row.items)
+                            {
+                                Helper.Insert(item);
+                            }
                         }
                     }
                     catch (Exception e)

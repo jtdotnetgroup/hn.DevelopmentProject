@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Newtonsoft.Json;
+using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations.Schema;
 
@@ -6,8 +7,11 @@ namespace hn.ArrowInterface.Entities
 {
     [Table("LH_OUTORDER")]
     public class OutOrder
-    {
+    { 
+        
         public string lhodoID { get; set; }
+        [NotMapped]
+        public string lhodoId { get; set; }
         public string lhodoNo { get; set; }
         public decimal lhtotalNumber { get; set; }
         public string lhodoType { get; set; }
@@ -30,7 +34,11 @@ namespace hn.ArrowInterface.Entities
         public DateTime attr2 { get; set; }
         public DateTime attr3 { get; set; }
         [NotMapped]
-        public List<OutOrderDetailed> saleOrderItemList { get; set; }
+        public List<OutOrderDetailed> items { get; set; }
+        public string KeyId()
+        {
+            return " AND lhodoID = '" + lhodoID + "'";
+        }
     }
     [Table("LH_OUTORDERDETAILED")]
     public class OutOrderDetailed
