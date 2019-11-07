@@ -1,4 +1,5 @@
 ﻿using hn.ArrowInterface.Entities;
+using hn.ArrowInterface.WebCommon;
 
 namespace hn.ArrowInterface.Jobs
 {
@@ -15,6 +16,11 @@ namespace hn.ArrowInterface.Jobs
             var result = Interface.HnInventoryBatchInsert(token.Token, data);
 
             return result.Success;
+        }
+
+        protected override AbstractRequestParams GetParams()
+        {
+            throw new System.NotImplementedException();
         }
     }
 }

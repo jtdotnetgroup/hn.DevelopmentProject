@@ -17,55 +17,68 @@ namespace ArrowInterfaceTest
         static void Main(string[] args)
         {
             DateTime d1 = DateTime.Now;
-            TestSyncQueryObOrderJob();
+            Test();
             DateTime d2 = DateTime.Now;
             TimeSpan d3 = d2.Subtract(d1);
             string msg = "相差:" + d3.Days.ToString() + "天" + d3.Hours.ToString() + "小时" + d3.Minutes.ToString() + "分钟" + d3.Seconds.ToString() + "秒";
-            Console.WriteLine(msg);
-
-            LogHelper.Init(Console.Out);
-
-            //TestProductJob();
-            //TestPolicyJob();
-            //TestQueryObPageJob();
-
-            //TestSaleOrderJob();
-
-            //TestSaleOrderUploadJob();
-
-            //TestAcctOAStatusJob();
-
-            //TestSyncInventoryDayJob();
-
-            //TestSyncHnObOrderDay();
-
-            //TestQueryProdPage();
+            Console.WriteLine(msg); 
+            LogHelper.Init(Console.Out); 
             Console.ReadKey();
         }
-
+        /// <summary>
+        /// 需要测试的方法
+        /// </summary>
+        static void Test()
+        {
+            int num = 2;
+            switch (num)
+            {
+                case 2:
+                    {
+                        TestInventoryJob();
+                        break;
+                    }
+                case 5:
+                    {
+                        TestProductJob();
+                        break;
+                    }
+                case 6:
+                    {
+                        TestPolicyJob();
+                        break;
+                    }
+                case 7:
+                    {
+                        TestSaleOrderUploadJob();
+                        break;
+                    }
+                case 8:
+                    {
+                        TestAcctOAStatusJob();
+                        break;
+                    }
+                case 9:
+                    {
+                        TestSaleOrderJob();
+                        break;
+                    }
+                case 10:
+                    {
+                        TestQueryObPageJob();
+                        break;
+                    }
+                case 12:
+                    {
+                        TestSyncQueryObOrderJob();
+                        break;
+                    }
+            }
+        }
         static void TestLogin()
         {
             iInterface.GetToken();
-        }
-
-        static void TestQueryLHInventoryPage()
-        {
-            var token = iInterface.GetToken();
-            var result = iInterface.QueryLHInventoryPage(token.Token); 
-        }
-
-        static void TestQueryProdPage()
-        {
-            var token = iInterface.GetToken();
-            var result = iInterface.QueryProdPage(token.Token); 
-        }
-
-        static void TestQueryPolicy()
-        {
-            var token = iInterface.GetToken();
-            var result = iInterface.QueryPolicy(token.Token); 
-        }
-
+        } 
         static void TestDelete()
         {
             OracleDBHelper helper = new OracleDBHelper("");
@@ -74,18 +87,25 @@ namespace ArrowInterfaceTest
             helper.Delete<AuthorizationToken>("");
 
         }
+        /// <summary>
+        /// 2、库存下载接口
+        /// </summary>
         static void TestInventoryJob()
         {
             ISyncJob job = new SyncInventoryJob();
             job.Sync(); 
         }
-
+        /// <summary>
+        /// 5、物料下载接口
+        /// </summary>
         static void TestProductJob()
         {
             ISyncJob job = new SyncProductJob();
             job.Sync(); 
         }
-
+        /// <summary>
+        /// 6、折扣政策下载
+        /// </summary>
         static void TestPolicyJob()
         {
             ISyncJob job = new SyncPolicyJob();
@@ -136,7 +156,9 @@ namespace ArrowInterfaceTest
             job.Sync();
             Console.WriteLine("OK");
         }
-
+        /// <summary>
+        /// 12、出库单下载
+        /// </summary>
         static void TestSyncQueryObOrderJob()
         {
             ISyncJob job   =new SyncqueryObOrderPageJob();

@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using hn.ArrowInterface.Entities;
+using hn.ArrowInterface.WebCommon;
 using Quartz;
 
 namespace hn.ArrowInterface.Jobs
@@ -33,6 +34,9 @@ namespace hn.ArrowInterface.Jobs
 
         }
 
-        
+        protected override AbstractRequestParams GetParams()
+        {
+            throw new NotImplementedException();
+        }
     }
 }

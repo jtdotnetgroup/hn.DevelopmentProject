@@ -122,8 +122,11 @@
     <Compile Include="RequestParams\LH_ProductParam.cs" />
     <Compile Include="RequestParams\LH_SaleOrderParam.cs" />
     <Compile Include="RequestParams\ObOrderUploadParam.cs" />
+    <Compile Include="RequestParams\QueryLHInventoryPageParam.cs" />
     <Compile Include="RequestParams\QueryObOrderPageParam.cs" />
     <Compile Include="RequestParams\QueryObPageParam.cs" />
+    <Compile Include="RequestParams\QueryPolicyParam.cs" />
+    <Compile Include="RequestParams\SaleOrderUploadParam.cs" />
     <Compile Include="Schedule\SyncSchedule.cs" />
     <Compile Include="WebCommon\AbsBaseRequest.cs" />
     <Compile Include="WebCommon\AbstractRequestParams.cs" />
