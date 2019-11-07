@@ -17,11 +17,29 @@ namespace ArrowInterfaceTest
         static void Main(string[] args)
         {
             DateTime d1 = DateTime.Now;
-            TestqueryObOrderPageJob();
+            TestSyncQueryObOrderJob();
             DateTime d2 = DateTime.Now;
             TimeSpan d3 = d2.Subtract(d1);
             string msg = "相差:" + d3.Days.ToString() + "天" + d3.Hours.ToString() + "小时" + d3.Minutes.ToString() + "分钟" + d3.Seconds.ToString() + "秒";
             Console.WriteLine(msg);
+
+            LogHelper.Init(Console.Out);
+
+            //TestProductJob();
+            //TestPolicyJob();
+            //TestQueryObPageJob();
+
+            //TestSaleOrderJob();
+
+            //TestSaleOrderUploadJob();
+
+            //TestAcctOAStatusJob();
+
+            //TestSyncInventoryDayJob();
+
+            //TestSyncHnObOrderDay();
+
+            //TestQueryProdPage();
             Console.ReadKey();
         }
 
@@ -105,22 +123,6 @@ namespace ArrowInterfaceTest
             ISyncJob job = new SyncQueryObPageJob();
             job.Sync();
         }
-        /// <summary>
-        /// 11  发货车牌号下载
-        /// </summary>
-        static void TestobOrderUploadJob()
-        {
-            ISyncJob job = new SyncobOrderUploadJob();
-            job.Sync();
-        }
-        /// <summary>
-        /// 12  出库单下载
-        /// </summary>
-        static void TestqueryObOrderPageJob()
-        {
-            ISyncJob job = new SyncqueryObOrderPageJob();
-            job.Sync();
-        }
         static void TestSyncHnObOrderDay()
         {
             ISyncJob job = new SyncHnObOrderDay();
@@ -133,6 +135,13 @@ namespace ArrowInterfaceTest
             ISyncJob job = new SyncInventoryDayJob();
             job.Sync();
             Console.WriteLine("OK");
+        }
+
+        static void TestSyncQueryObOrderJob()
+        {
+            ISyncJob job   =new SyncqueryObOrderPageJob();
+            job.Sync();
+            
         }
     }
 }

@@ -5,7 +5,6 @@ using System.ComponentModel.DataAnnotations.Schema;
 using System.Data;
 using System.Data.Common;
 using System.Linq;
-using System.Reflection;
 using System.Text;
 using Oracle.ManagedDataAccess.Client;
 
@@ -13,9 +12,7 @@ namespace hn.Common
 {
     public class OracleDBHelper
     {
-        public DbConnection conn { get; set; }
-
-        private static OracleClientFactory factory = new OracleClientFactory();
+        private static readonly OracleClientFactory factory = new OracleClientFactory();
 
         public OracleDBHelper(string conStr)
         {
@@ -23,103 +20,109 @@ namespace hn.Common
             conn.ConnectionString = conStr;
         }
 
+        public DbConnection conn { get; set; }
+
+        /// <summary>
+        /// 用于执行没有返回数据的SQL语句，如UPDATE或INSERT、DELETE类
+        /// </summary>
+        /// <param name="sql"></param>
+        /// <param name="pars"></param>
+        /// <returns></returns>
         public int ExecuteNonQuery(string sql, Dictionary<string, object> pars)
         {
             try
             {
-                if (conn.State == ConnectionState.Closed)
-                {
-                    conn.Open();
-                }
+                if (conn.State == ConnectionState.Closed) conn.Open();
 
                 var cmd = factory.CreateCommand();
                 cmd.Connection = conn;
                 cmd.CommandText = sql;
 
-                foreach (var key in pars.Keys)
-                {
-                    cmd.Parameters.Add(new OracleParameter(key, pars[key]));
-                }
+                foreach (var key in pars.Keys) cmd.Parameters.Add(new OracleParameter(key, pars[key]));
 
                 return cmd.ExecuteNonQuery();
             }
             catch (Exception e)
             {
-                LogHelper.LogErr(e);
-                LogHelper.LogInfo("SQL:" + sql);
+                LogHelper.Error(e);
+                LogHelper.Info("SQL:" + sql);
                 throw;
             }
-
         }
-
+        
+        /// <summary>
+        /// 执行SQL语并返回首行首列值，例如：SELECT COUNT()/MAX()/MIN()等
+        /// </summary>
+        /// <param name="sql"></param>
+        /// <param name="pars"></param>
+        /// <returns></returns>
         public object ExecuteScalar(string sql, Dictionary<string, object> pars)
         {
             try
             {
-                if (conn.State == ConnectionState.Closed)
-                {
-                    conn.Open();
-                }
+                if (conn.State == ConnectionState.Closed) conn.Open();
 
                 var cmd = factory.CreateCommand();
                 cmd.Connection = conn;
                 cmd.CommandText = sql;
 
-                foreach (var key in pars.Keys)
-                {
-                    cmd.Parameters.Add(new OracleParameter(key, pars[key]));
-                }
+                foreach (var key in pars.Keys) cmd.Parameters.Add(new OracleParameter(key, pars[key]));
 
                 return cmd.ExecuteScalar();
             }
             catch (Exception e)
             {
-
-                LogHelper.LogErr(e);
-                LogHelper.LogInfo("SQL:" + sql);
+                LogHelper.Error(e);
+                LogHelper.Info("SQL:" + sql);
                 throw;
             }
         }
 
+        /// <summary>
+        /// 根据实体对象获取插入SQL语句
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <returns></returns>
         public string GetInsertSql<T>()
         {
             var t = typeof(T);
-            
-            var pis = t.GetProperties().Where(p=>p.GetCustomAttributes(true).Count(pi => pi.GetType() == typeof(NotMappedAttribute)) == 0).ToList();
 
-            var tableAttr = t.GetCustomAttributes(true).FirstOrDefault(p => p.GetType() == typeof(TableAttribute)) as TableAttribute;
+            var pis = t.GetProperties().Where(p =>
+                p.GetCustomAttributes(true).Count(pi => pi.GetType() == typeof(NotMappedAttribute)) == 0).ToList();
+
+            var tableAttr =
+                t.GetCustomAttributes(true)
+                    .FirstOrDefault(p => p.GetType() == typeof(TableAttribute)) as TableAttribute;
             var tableName = tableAttr.Name;
 
             var strbuilder = new StringBuilder();
             strbuilder.AppendFormat("INSERT INTO {0} ", tableName);
 
-            string fields = "(";
-            string values = "VALUES (";
+            var fields = "(";
+            var values = "VALUES (";
 
             pis.ForEach(p =>
             {
-                    string fieldName = p.Name;
+                var fieldName = p.Name;
 
-                    if (p.GetCustomAttributes(true).SingleOrDefault(o => o.GetType() == typeof(ColumnAttribute)) is
-                        ColumnAttribute column)
-                    {
-                        fieldName = column.Name;
-                    }
+                if (p.GetCustomAttributes(true).SingleOrDefault(o => o.GetType() == typeof(ColumnAttribute)) is
+                    ColumnAttribute column)
+                    fieldName = column.Name;
 
-                    fields += fieldName;
+                fields += fieldName;
 
-                    values += ":" + p.Name;
+                values += ":" + p.Name;
 
-                    if (p == pis.Last())
-                    {
-                        fields += ")";
-                        values += ")";
-                    }
-                    else
-                    {
-                        fields += ",";
-                        values += ",";
-                    }
+                if (p == pis.Last())
+                {
+                    fields += ")";
+                    values += ")";
+                }
+                else
+                {
+                    fields += ",";
+                    values += ",";
+                }
             });
 
             strbuilder.Append(fields);
@@ -128,41 +131,43 @@ namespace hn.Common
             return strbuilder.ToString();
         }
 
+        /// <summary>
+        /// 根据实体对像获取UPDATE语句
+        /// </summary>
+        /// <typeparam name="T">实体类</typeparam>
+        /// <param name="where">更新条件</param>
+        /// <returns></returns>
         public string GetUpdateSql<T>(string where)
         {
             var t = typeof(T);
 
-            var pis = t.GetProperties().Where(p => p.GetCustomAttributes(true).Count(pi => pi.GetType() == typeof(NotMappedAttribute)) == 0).ToList();
+            var pis = t.GetProperties().Where(p =>
+                p.GetCustomAttributes(true).Count(pi => pi.GetType() == typeof(NotMappedAttribute)) == 0).ToList();
 
-            var tableAttr = t.GetCustomAttributes(true).FirstOrDefault(p => p.GetType() == typeof(TableAttribute)) as TableAttribute;
+            var tableAttr =
+                t.GetCustomAttributes(true)
+                    .FirstOrDefault(p => p.GetType() == typeof(TableAttribute)) as TableAttribute;
             var tableName = tableAttr.Name;
 
             var strbuilder = new StringBuilder();
             strbuilder.AppendFormat("UPDATE {0} SET ", tableName);
 
-            string fields = "";
+            var fields = "";
 
             pis.ForEach(p =>
             {
+                var fieldName = p.Name;
 
-                    string fieldName = p.Name;
+                if (p.GetCustomAttributes(true).SingleOrDefault(o => o.GetType() == typeof(ColumnAttribute)) is
+                    ColumnAttribute column)
+                    fieldName = column.Name;
 
-                    if (p.GetCustomAttributes(true).SingleOrDefault(o => o.GetType() == typeof(ColumnAttribute)) is
-                        ColumnAttribute column)
-                    {
-                        fieldName = column.Name;
-                    }
+                fields += fieldName + "=:" + p.Name;
 
-                    fields += fieldName + "=:" + p.Name;
-
-                    if (p == pis.Last())
-                    {
-                        fields += " WHERE 1=1 ";
-                    }
-                    else
-                    {
-                        fields += ",";
-                    }
+                if (p == pis.Last())
+                    fields += " WHERE 1=1 ";
+                else
+                    fields += ",";
             });
 
             strbuilder.Append(fields);
@@ -170,6 +175,13 @@ namespace hn.Common
             return strbuilder.ToString();
         }
 
+        /// <summary>
+        /// 更新实体数据
+        /// </summary>
+        /// <typeparam name="T">实体类型</typeparam>
+        /// <param name="obj">实体数据</param>
+        /// <param name="where">更新条件</param>
+        /// <returns></returns>
         public bool Update<T>(T obj, string where)
         {
             var sql = GetUpdateSql<T>(where);
@@ -178,28 +190,30 @@ namespace hn.Common
 
             try
             {
-                if (conn.State == ConnectionState.Closed)
-                {
-                    conn.Open();
-                }
+                if (conn.State == ConnectionState.Closed) conn.Open();
 
                 return cmd.ExecuteNonQuery() > 0;
             }
             catch (Exception e)
             {
-                LogHelper.LogErr(e);
-                LogHelper.LogInfo("SQL:" + sql);
+                LogHelper.Error(e);
+                LogHelper.Info("SQL:" + sql);
                 throw;
             }
-
         }
 
+        /// <summary>
+        /// 更新实体数据，更新条件为实体类型的Key特性字段
+        /// </summary>
+        /// <typeparam name="T">实体类型</typeparam>
+        /// <param name="obj">实体数据</param>
+        /// <returns></returns>
         public bool Update<T>(T obj)
         {
             var t = typeof(T);
             var pis = t.GetProperties();
 
-            string keyFieldName = "";
+            var keyFieldName = "";
 
             foreach (var pi in pis)
             {
@@ -211,35 +225,33 @@ namespace hn.Common
                 }
             }
 
-            if (string.IsNullOrEmpty(keyFieldName))
-            {
-                throw new ArgumentException(string.Format("{0}类未指定Key字段", t.Name));
-            }
-            string where = string.Format(" AND {0}=:{1}", keyFieldName, keyFieldName);
-            string sql = GetUpdateSql<T>(where);
+            if (string.IsNullOrEmpty(keyFieldName)) throw new ArgumentException(string.Format("{0}类未指定Key字段", t.Name));
+            var where = string.Format(" AND {0}=:{1}", keyFieldName, keyFieldName);
+            var sql = GetUpdateSql<T>(where);
 
             var cmd = GetCommand(sql, obj);
             cmd.Connection = conn;
 
             try
             {
-                if (conn.State == ConnectionState.Closed)
-                {
-                    conn.Open();
-                }
+                if (conn.State == ConnectionState.Closed) conn.Open();
 
                 return cmd.ExecuteNonQuery() > 0;
             }
             catch (Exception e)
             {
-                LogHelper.LogErr(e);
-                LogHelper.LogInfo("SQL:" + sql);
+                LogHelper.Error(e);
+                LogHelper.Info("SQL:" + sql);
                 throw;
             }
-
-
         }
 
+        /// <summary>
+        /// 插入数据
+        /// </summary>
+        /// <typeparam name="T">实体类型</typeparam>
+        /// <param name="obj">插入的实体数据</param>
+        /// <returns></returns>
         public bool Insert<T>(T obj)
         {
             var sql = GetInsertSql<T>();
@@ -248,21 +260,25 @@ namespace hn.Common
 
             try
             {
-                if (conn.State == ConnectionState.Closed)
-                {
-                    conn.Open();
-                }
+                if (conn.State == ConnectionState.Closed) conn.Open();
 
                 return cmd.ExecuteNonQuery() > 0;
             }
             catch (Exception e)
             {
-                LogHelper.LogErr(e);
-                LogHelper.LogInfo("SQL:" + sql);
+                LogHelper.Error(e);
+                LogHelper.Info("SQL:" + sql);
                 throw;
             }
         }
 
+        /// <summary>
+        /// 根据实体类型获取DBCommand
+        /// </summary>
+        /// <typeparam name="T">实体数据类型</typeparam>
+        /// <param name="sql">要执行的SQL语句</param>
+        /// <param name="par">替换进SQL的实际数据</param>
+        /// <returns></returns>
         private DbCommand GetCommand<T>(string sql, T par)
         {
             var cmd = factory.CreateCommand();
@@ -270,7 +286,8 @@ namespace hn.Common
             cmd.Connection = conn;
 
             var t = typeof(T);
-            var pis = t.GetProperties().Where(p=>p.GetCustomAttributes(true).Count(pi=>pi.GetType()==typeof(NotMappedAttribute))==0).ToList();
+            var pis = t.GetProperties().Where(p =>
+                p.GetCustomAttributes(true).Count(pi => pi.GetType() == typeof(NotMappedAttribute)) == 0).ToList();
 
             pis.ForEach(p =>
             {
@@ -284,6 +301,13 @@ namespace hn.Common
             return cmd;
         }
 
+        /// <summary>
+        /// 根据实体类型获取DBCommand
+        /// </summary>
+        /// <typeparam name="T">实体数据类型</typeparam>
+        /// <param name="sql">要执行的SQL语句</param>
+        /// <param name="par">替换进SQL的实际数据</param>
+        /// <returns></returns>
         private DbCommand GetCommand<T>(string sql, List<T> pars)
         {
             var cmd = factory.CreateCommand();
@@ -315,10 +339,12 @@ namespace hn.Common
 
             var pis = t.GetProperties().ToList();
 
-            var tableAttr = t.GetCustomAttributes(true).FirstOrDefault(p => p.GetType() == typeof(TableAttribute)) as TableAttribute;
+            var tableAttr =
+                t.GetCustomAttributes(true)
+                    .FirstOrDefault(p => p.GetType() == typeof(TableAttribute)) as TableAttribute;
             var tableName = tableAttr.Name;
 
-            string sql = string.Format("DELETE FROM {0} WHERE 1=1 {1}", tableName, where);
+            var sql = string.Format("DELETE FROM {0} WHERE 1=1 {1}", tableName, where);
 
             var cmd = factory.CreateCommand();
             cmd.CommandText = sql;
@@ -326,41 +352,34 @@ namespace hn.Common
 
             try
             {
-                if (conn.State == ConnectionState.Closed)
-                {
-                    conn.Open();
-                }
+                if (conn.State == ConnectionState.Closed) conn.Open();
 
                 return cmd.ExecuteNonQuery();
             }
             catch (Exception e)
             {
-                LogHelper.LogErr(e);
-                LogHelper.LogInfo("SQL:" + sql);
+                LogHelper.Error(e);
+                LogHelper.Info("SQL:" + sql);
                 throw;
             }
-
         }
 
         public DataTable Select(string sql)
         {
-            if (conn.State == ConnectionState.Closed)
-            {
-                conn.Open();
-            }
+            if (conn.State == ConnectionState.Closed) conn.Open();
             var cmd = factory.CreateCommand();
             cmd.CommandText = sql;
             cmd.Connection = conn;
             var da = factory.CreateDataAdapter();
             da.SelectCommand = cmd;
-            DataTable table = new DataTable();
+            var table = new DataTable();
             try
             {
                 da.Fill(table);
             }
             catch (Exception e)
             {
-                LogHelper.LogInfo($"SQL:{sql}\n异常：{e.Message}");
+                LogHelper.Info($"SQL:{sql}\n异常：{e.Message}");
                 throw;
             }
 
@@ -370,41 +389,32 @@ namespace hn.Common
         private List<T> DataTableToList<T>(DataTable table) where T : new()
         {
             //反射获得泛型类信息
-            Type t = typeof(T);
+            var t = typeof(T);
             //获得泛型类所有公共字段
-            List<PropertyInfo> pisInfos = t.GetProperties().ToList();
+            var pisInfos = t.GetProperties().ToList();
             //最终返回的对象列表
-            List<T> result = new List<T>();
+            var result = new List<T>();
             foreach (DataRow row in table.Rows)
             {
-                T item = new T();
+                var item = new T();
                 foreach (DataColumn col in table.Columns)
                 {
                     //这里假设字段名和数据库列名是一 一对应
                     //可能通过字段名与列名进行比较，相同则进行取值赋值操作
-                    PropertyInfo pi = pisInfos.FirstOrDefault(p =>
+                    var pi = pisInfos.FirstOrDefault(p =>
                     {
-                        if (p.Name.ToUpper() == col.ColumnName.ToUpper())
-                        {
-                            return true;
-                        }
-                        //如果列名与字段不是一一对应的，则反身字段Column特，获取Column的Name值与列名进行比较
-                        var attr =
-                            p.GetCustomAttributes(true).FirstOrDefault(f => f.GetType() == typeof(ColumnAttribute)) as
-                                ColumnAttribute;
+                        if (p.Name.ToUpper() == col.ColumnName.ToUpper()) return true;
+                        //如果列名与字段不是一一对应的，则反射字段Column特性，获取Column的Name值与列名进行比较
 
-                        return attr != null && attr.Name.ToUpper() == col.ColumnName.ToUpper();
-
+                        return p.GetCustomAttributes(true).FirstOrDefault(f => f.GetType() == typeof(ColumnAttribute)) is ColumnAttribute attr && attr.Name.ToUpper() == col.ColumnName.ToUpper();
                     });
                     if (pi != null)
                     {
-                        object value = row[col.ColumnName];
-                        if (value != null && !string.IsNullOrEmpty(value.ToString()))
-                        {
-                            pi.SetValue(item, value, null);
-                        }
+                        var value = row[col.ColumnName];
+                        if (value != null && !string.IsNullOrEmpty(value.ToString())) pi.SetValue(item, value, null);
                     }
                 }
+
                 result.Add(item);
             }
 
@@ -413,47 +423,40 @@ namespace hn.Common
 
         public List<T> Select<T>(string sql) where T : new()
         {
-            if (conn.State == ConnectionState.Closed)
-            {
-                conn.Open();
-            }
+            if (conn.State == ConnectionState.Closed) conn.Open();
             var cmd = factory.CreateCommand();
             cmd.CommandText = sql;
             cmd.Connection = conn;
             var da = factory.CreateDataAdapter();
             da.SelectCommand = cmd;
-            DataTable table = new DataTable();
+            var table = new DataTable();
             da.Fill(table);
 
             var result = DataTableToList<T>(table);
 
             return result;
         }
+
         public T Get<T>(string sql) where T : new()
         {
-            if (conn.State == ConnectionState.Closed)
-            {
-                conn.Open();
-            }
+            if (conn.State == ConnectionState.Closed) conn.Open();
             var cmd = factory.CreateCommand();
             cmd.CommandText = sql;
             cmd.Connection = conn;
             var da = factory.CreateDataAdapter();
             da.SelectCommand = cmd;
-            DataTable table = new DataTable();
+            var table = new DataTable();
             da.Fill(table);
 
             var result = DataTableToList<T>(table).FirstOrDefault();
 
             return result;
         }
+
         public bool BatchInsert<T>(List<T> data)
         {
-            if (data == null || data.Count == 0)
-            {
-                return false;
-            }
-            string sql = "INSERT ALL \n";
+            if (data == null || data.Count == 0) return false;
+            var sql = "INSERT ALL \n";
 
             foreach (var row in data)
             {
@@ -469,10 +472,7 @@ namespace hn.Common
 
             try
             {
-                if (conn.State == ConnectionState.Closed)
-                {
-                    conn.Open();
-                }
+                if (conn.State == ConnectionState.Closed) conn.Open();
 
                 var result = cmd.ExecuteNonQuery() > 0;
                 conn.Close();
@@ -480,28 +480,21 @@ namespace hn.Common
             }
             catch (Exception e)
             {
-                LogHelper.LogErr(e);
-                LogHelper.LogInfo("SQL:" + sql);
+                LogHelper.Error(e);
+                LogHelper.Info("SQL:" + sql);
                 throw;
             }
-
         }
 
         public bool BatchUpdate<T>(List<T> data, string where)
         {
-            if (data == null || data.Count == 0)
-            {
-                return false;
-            }
+            if (data == null || data.Count == 0) return false;
             var now = DateTime.Now;
             var sql = GetUpdateSql<T>(where);
 
             try
             {
-                if (conn.State == ConnectionState.Closed)
-                {
-                    conn.Open();
-                }
+                if (conn.State == ConnectionState.Closed) conn.Open();
 
                 data.ForEach(row =>
                 {
@@ -510,13 +503,13 @@ namespace hn.Common
                     cmd.ExecuteNonQuery();
                 });
                 var timespan = DateTime.Now - now;
-                LogHelper.LogInfo($"批量更新完成耗时：{timespan.Hours}时{timespan.Minutes}分{timespan.Seconds}秒，共更新{data.Count}条数据");
+                LogHelper.Info($"批量更新完成耗时：{timespan.Hours}时{timespan.Minutes}分{timespan.Seconds}秒，共更新{data.Count}条数据");
                 return true;
             }
             catch (Exception e)
             {
-                LogHelper.LogInfo($"批量更新失败\n异常：{e.Message}");
-                LogHelper.LogInfo("SQL:" + sql);
+                LogHelper.Info($"批量更新失败\n异常：{e.Message}");
+                LogHelper.Info("SQL:" + sql);
                 throw;
             }
         }
@@ -524,10 +517,12 @@ namespace hn.Common
         public string GetSelectSql<T>()
         {
             var t = typeof(T);
-            var tableAttr = t.GetCustomAttributes(true).FirstOrDefault(p => p.GetType() == typeof(TableAttribute)) as TableAttribute;
-            string tableName = tableAttr == null ? t.Name : tableAttr.Name;
+            var tableAttr =
+                t.GetCustomAttributes(true)
+                    .FirstOrDefault(p => p.GetType() == typeof(TableAttribute)) as TableAttribute;
+            var tableName = tableAttr == null ? t.Name : tableAttr.Name;
 
-            StringBuilder builder = new StringBuilder();
+            var builder = new StringBuilder();
             builder.Append("SELECT * FROM ");
             builder.Append(tableName);
             builder.Append(" Where 1=1");
@@ -537,15 +532,12 @@ namespace hn.Common
 
         public T Get<T>(object id) where T : new()
         {
-            if (conn.State == ConnectionState.Closed)
-            {
-                conn.Open();
-            }
-            string sql = GetSelectSql<T>();
+            if (conn.State == ConnectionState.Closed) conn.Open();
+            var sql = GetSelectSql<T>();
             var t = typeof(T);
             var pis = t.GetProperties();
 
-            string keyFieldName = "";
+            var keyFieldName = "";
 
             foreach (var pi in pis)
             {
@@ -558,33 +550,30 @@ namespace hn.Common
                 }
             }
 
-            if (string.IsNullOrEmpty(keyFieldName))
-            {
-                throw new ArgumentException(string.Format("{0}类未指定Key字段", t.Name));
-            }
+            if (string.IsNullOrEmpty(keyFieldName)) throw new ArgumentException(string.Format("{0}类未指定Key字段", t.Name));
 
-            sql += string.Format(" AND {0}=", keyFieldName) + id.ToString();
+            sql += string.Format(" AND {0}=", keyFieldName) + id;
 
             var result = Select<T>(sql).FirstOrDefault();
 
             return result;
-
         }
 
         public List<T> GetAll<T>() where T : new()
         {
-            string sql = GetSelectSql<T>();
+            var sql = GetSelectSql<T>();
             return Select<T>(sql);
         }
 
         private DbCommand GetCommand<T>(T where)
         {
-            string sql = GetSelectSql<T>();
-            StringBuilder builder = new StringBuilder();
+            var sql = GetSelectSql<T>();
+            var builder = new StringBuilder();
             builder.Append(sql);
 
             var t = where.GetType();
-            var pis = t.GetProperties().Where(p=>p.GetCustomAttributes(true).Count(pi=>pi.GetType()==typeof(NotMappedAttribute))==0);
+            var pis = t.GetProperties().Where(p =>
+                p.GetCustomAttributes(true).Count(pi => pi.GetType() == typeof(NotMappedAttribute)) == 0);
             var cmd = factory.CreateCommand();
 
             foreach (var pi in pis)
@@ -592,12 +581,10 @@ namespace hn.Common
                 var value = pi.GetValue(where, null);
                 if (value != null)
                 {
-                    string fieldName = pi.Name;
+                    var fieldName = pi.Name;
 
-                    if (pi.GetCustomAttributes(true).FirstOrDefault(p => p.GetType() == typeof(ColumnAttribute)) is ColumnAttribute attr)
-                    {
-                        fieldName = attr.Name;
-                    }
+                    if (pi.GetCustomAttributes(true).FirstOrDefault(p => p.GetType() == typeof(ColumnAttribute)) is
+                        ColumnAttribute attr) fieldName = attr.Name;
 
                     cmd.Parameters.Add(new OracleParameter(pi.Name, value));
 
@@ -605,9 +592,9 @@ namespace hn.Common
                     builder.Append(fieldName);
                     builder.Append("=:");
                     builder.Append(pi.Name);
-
                 }
             }
+
             sql = builder.ToString();
             cmd.CommandText = sql;
             cmd.Connection = conn;
@@ -616,8 +603,8 @@ namespace hn.Common
 
         public string GetSelectSql<T>(object wherer)
         {
-            string sql = GetSelectSql<T>();
-            StringBuilder builder = new StringBuilder();
+            var sql = GetSelectSql<T>();
+            var builder = new StringBuilder();
             builder.Append(sql);
             builder.Append(" WHERE 1=1 ");
 
@@ -629,18 +616,15 @@ namespace hn.Common
                 var value = pi.GetValue(wherer, null);
                 if (value != null)
                 {
-                    string fieldName = pi.Name;
+                    var fieldName = pi.Name;
 
-                    if (pi.GetCustomAttributes(true).FirstOrDefault(p => p.GetType() == typeof(ColumnAttribute)) is ColumnAttribute attr)
-                    {
-                        fieldName = attr.Name;
-                    }
+                    if (pi.GetCustomAttributes(true).FirstOrDefault(p => p.GetType() == typeof(ColumnAttribute)) is
+                        ColumnAttribute attr) fieldName = attr.Name;
 
                     builder.Append(" AND ");
                     builder.Append(fieldName);
                     builder.Append("=:");
                     builder.Append(pi.Name);
-
                 }
             }
 
@@ -649,22 +633,18 @@ namespace hn.Common
 
         public List<T> GetWhere<T>(T condiction) where T : new()
         {
-            if (conn.State == ConnectionState.Closed)
-            {
-                conn.Open();
-            }
+            if (conn.State == ConnectionState.Closed) conn.Open();
 
             var cmd = GetCommand(condiction);
             var da = factory.CreateDataAdapter();
             da.SelectCommand = cmd;
 
-            DataTable data = new DataTable();
+            var data = new DataTable();
             da.Fill(data);
 
             var result = DataTableToList<T>(data);
 
             return result;
-
         }
     }
 }

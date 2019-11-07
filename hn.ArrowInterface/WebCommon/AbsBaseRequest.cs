@@ -1,9 +1,13 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Net;
 using System.Net.Http;
 using System.Net.Http.Headers;
 using System.Text;
+using System.Threading.Tasks;
+using hn.ArrowInterface.Entities;
+using hn.Common;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Serialization;
 
@@ -31,10 +35,11 @@ namespace hn.ArrowInterface.WebCommon
         /// <param name="token">此值无时，传入空字符串</param>
         /// <param name="pars">请求参数</param>
         /// <returns></returns>
-        public T BaseRequest<T>(string url, string token, Dictionary<string, object> pars,string Method= "POST")
+        public  T BaseRequest<T,TR>(string url, string token, Dictionary<string, object> pars,string Method= "POST") where T: AbsRequestResult<TR>
         {
             HttpContent content; 
             Dictionary<string, string> dic = new Dictionary<string, string>();
+            var json = JsonConvert.SerializeObject(pars);
             //当token为空时，设置请求的ContentType为 w-xxx-form-urlencoded
             if (string.IsNullOrEmpty(token))
             {
@@ -46,20 +51,16 @@ namespace hn.ArrowInterface.WebCommon
             }
             else
             {
-                var json = JsonConvert.SerializeObject(pars);
                 content = new StringContent(json, Encoding.UTF8, "application/json");
                 client.DefaultRequestHeaders.Authorization = AuthenticationHeaderValue.Parse("bearer " + token);
             }
+
+            HttpResponseMessage res;
+
+            LogHelper.Info($@"开始请求：{url}\r\n参数：{json}");
             if (Method == "POST")
             {
-                var res = client.PostAsync(url, content).Result;
-                var serializerSettings = new JsonSerializerSettings
-                {
-                    // 设置为驼峰命名
-                    ContractResolver = new CamelCasePropertyNamesContractResolver()
-                };
-                var result = JsonConvert.DeserializeObject<T>(res.Content.ReadAsStringAsync().Result, serializerSettings);
-                return result;
+                res = client.PostAsync(url, content).Result;
             }
             else
             {
@@ -68,32 +69,52 @@ namespace hn.ArrowInterface.WebCommon
                     url += item.Key + "=" + item.Value+"&";
                 }
                 url += "k=1";
-                var res = client.GetAsync(url).Result;
-                var serializerSettings = new JsonSerializerSettings
-                {
-                    // 设置为驼峰命名
-                    ContractResolver = new CamelCasePropertyNamesContractResolver()
-                };
-                var result = JsonConvert.DeserializeObject<T>(res.Content.ReadAsStringAsync().Result, serializerSettings);
-
-                return result;
+                res = client.GetAsync(url).Result;
             }
-           
+
+            var resultStr = res.Content.ReadAsStringAsync().Result;
+
+            var result =  JsonConvert.DeserializeObject<T>(resultStr);
+
+
+            var count = result.Rows?.Count ?? (result.item?.Count ?? 0);
+
+            string resultMessage = $"请求完成，共返回【{count}】条结果";
+
+           LogHelper.Info(resultMessage);
+
+            return result;
 
         }
-        public T BaseRequest<T>(string url, string token, object json)
+        public  T BaseRequest<T>(string url, string token, object json)
         {
             return BaseRequest<T>(url, token, JsonConvert.SerializeObject(json));
         }
-        public T BaseRequest<T>(string url, string token, string json)
+        public T BaseRequest<T>(string url, string token, Dictionary<string, object> pars)
         {
-            HttpContent content = new StringContent(json, Encoding.UTF8, "application/json");
+            HttpContent content;
+            Dictionary<string, string> dic = new Dictionary<string, string>();
+            var json = JsonConvert.SerializeObject(pars);
+            if (string.IsNullOrEmpty(token))
+            {
+                foreach (var k in pars.Keys)
+                {
+                    dic.Add(k, pars[k].ToString());
+                }
+                content = new FormUrlEncodedContent(dic);
+            }
+            else
+            {
+                content = new StringContent(json, Encoding.UTF8, "application/json");
+                client.DefaultRequestHeaders.Authorization = AuthenticationHeaderValue.Parse("bearer " + token);
+            }
 
             client.DefaultRequestHeaders.Authorization = AuthenticationHeaderValue.Parse("bearer " + token);
 
+            LogHelper.Info($@"开始请求：{url}\r\n参数：{json}");
             var res = client.PostAsync(url, content).Result;
-              var result = JsonConvert.DeserializeObject<T>(res.Content.ReadAsStringAsync().Result);
-
+            var result = JsonConvert.DeserializeObject<T>(res.Content.ReadAsStringAsync().Result);
+            LogHelper.Info( $@"请求完成");
             return result;
         }
     }

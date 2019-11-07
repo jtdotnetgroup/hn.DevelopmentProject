@@ -5,7 +5,8 @@ namespace hn.ArrowInterface.Entities
     [Table("LH_Policy")]
     public class QueryPolicy
     {
-        public string HeadId { get; set; }
+        [Column("HeadId")]
+        public string Id { get; set; }
         public string PolicyName { get; set; }
         public string OrderType { get; set; }
         public string OrderSubType { get; set; }

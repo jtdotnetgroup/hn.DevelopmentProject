@@ -1,22 +1,31 @@
 ﻿using System;
+using System.IO;
 using log4net;
 using log4net.Core;
 
+[assembly: log4net.Config.XmlConfigurator(Watch = true)]
 namespace hn.Common
 {
     public class LogHelper
     {
-        private static readonly ILog info = LogManager.GetLogger("EventLog");
-        private static readonly ILog error = LogManager.GetLogger("ExceptionLog");
+        private static readonly ILog Logger = LogManager.GetLogger(typeof(LogHelper));
 
-        public static void LogInfo(string msg)
+        private static TextWriter _textWriter;
+
+        public static void Info(string msg)
         {
-            info.Info(msg);
+            Logger.Info(msg);
         }
 
-        public static void LogErr(Exception ex)
+        public static void Error(Exception ex)
         {
-            error.Error(ex);
+            Logger.Error(ex);
+        }
+
+        public static void Init(TextWriter writer)
+        {
+            _textWriter = writer;
+            Console.SetOut(_textWriter);
         }
     }
 }

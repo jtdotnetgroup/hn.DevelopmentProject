@@ -8,7 +8,6 @@ using hn.AutoSyncLib;
 using hn.AutoSyncLib.Common;
 using hn.AutoSyncLib.Jobs;
 using hn.AutoSyncLib.Schedule;
-using Quartz.Impl;
 
 namespace ConsoleApp2
 {

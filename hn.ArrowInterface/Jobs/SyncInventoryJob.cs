@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Linq;
 using hn.Common;
 using Newtonsoft.Json;
 
@@ -14,7 +15,7 @@ namespace hn.ArrowInterface.Jobs
 
             if (result.Success)
             {
-                foreach (var row in result.Rows)
+                foreach (var row in result.Rows.AsParallel())
                 {
                     try
                     {
@@ -24,8 +25,8 @@ namespace hn.ArrowInterface.Jobs
                     catch (Exception e)
                     {
                         string message = string.Format("库存记录插入失败：{0}", JsonConvert.SerializeObject(row));
-                        LogHelper.LogInfo(message);
-                        LogHelper.LogErr(e);
+                        LogHelper.Info(message);
+                        LogHelper.Error(e);
                     }
                 }
 
