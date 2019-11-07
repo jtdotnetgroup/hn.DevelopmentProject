@@ -10,7 +10,7 @@ namespace hn.ArrowInterface.Jobs
         {
             var token = GetToken();
 
-            var result = Interface.AcctOAStatus(token.Token);
+            var result = Interface.AcctOaStatus(token.Token);
 
             if (result.Success)
             {

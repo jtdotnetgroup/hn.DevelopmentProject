@@ -90,9 +90,24 @@ namespace hn.ArrowInterface.WebCommon
         {
             return BaseRequest<T>(url, token, JsonConvert.SerializeObject(json));
         }
-        public T BaseRequest<T>(string url, string token, string json)
+        public T BaseRequest<T>(string url, string token, Dictionary<string, object> pars)
         {
-            HttpContent content = new StringContent(json, Encoding.UTF8, "application/json");
+            HttpContent content;
+            Dictionary<string, string> dic = new Dictionary<string, string>();
+            var json = JsonConvert.SerializeObject(pars);
+            if (string.IsNullOrEmpty(token))
+            {
+                foreach (var k in pars.Keys)
+                {
+                    dic.Add(k, pars[k].ToString());
+                }
+                content = new FormUrlEncodedContent(dic);
+            }
+            else
+            {
+                content = new StringContent(json, Encoding.UTF8, "application/json");
+                client.DefaultRequestHeaders.Authorization = AuthenticationHeaderValue.Parse("bearer " + token);
+            }
 
             client.DefaultRequestHeaders.Authorization = AuthenticationHeaderValue.Parse("bearer " + token);
 

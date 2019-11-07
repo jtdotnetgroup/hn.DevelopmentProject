@@ -20,8 +20,8 @@ namespace ArrowInterfaceTest
 
             LogHelper.Init(Console.Out);
 
-            //TestInventoryJob();
-            TestProductJob();
+            TestSyncQueryObOrderJob();
+            //TestProductJob();
             //TestPolicyJob();
             //TestQueryObPageJob();
 
@@ -132,6 +132,13 @@ namespace ArrowInterfaceTest
             ISyncJob job = new SyncInventoryDayJob();
             job.Sync();
             Console.WriteLine("OK");
+        }
+
+        static void TestSyncQueryObOrderJob()
+        {
+            ISyncJob job   =new SyncqueryObOrderPageJob();
+            job.Sync();
+            
         }
     }
 }

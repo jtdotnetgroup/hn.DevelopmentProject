@@ -7,13 +7,16 @@ using System.Text;
 namespace hn.ArrowInterface.Entities
 {
     /// <summary>
-    /// 销售订单头
+    /// 定制订单头
     /// </summary>
     [Table("LH_SALEORDER")]
     public class SaleOrder
     { 
         public string Id { get; set; }
-        public string orderId { get; set; }
+        public string orderId
+        {
+            get => Id;
+        }
         public string orderNo { get; set; }
         public string acctCode { get; set; }
         public string acctName { get; set; }
@@ -62,7 +65,7 @@ namespace hn.ArrowInterface.Entities
         }
     }
     /// <summary>
-    /// 销售订单明细
+    /// 定制订单明细
     /// </summary>
     [Table("LH_SALEORDERDETAILED")]
     public class SaleOrderDetailed

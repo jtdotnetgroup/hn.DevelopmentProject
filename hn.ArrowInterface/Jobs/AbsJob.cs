@@ -7,6 +7,9 @@ using Quartz;
 
 namespace hn.ArrowInterface.Jobs
 {
+    /// <summary>
+    /// 通用同步作业类
+    /// </summary>
     public abstract class AbsJob:ISyncJob,IJob
     {
         protected ArrowInterface Interface { get; set; }

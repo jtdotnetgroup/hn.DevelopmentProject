@@ -35,8 +35,6 @@ namespace hn.ArrowInterface.Schedule
             foreach (var t in jobsTypes)
             {
                 string jobName = t.Name;
-                //接口间隔定义值，于配置文件中定义
-                var interval = Convert.ToInt32(ConfigurationManager.AppSettings.Get(jobName));
 
                 IScheduler scheduler = factory.GetScheduler();
                 scheduler.Start();

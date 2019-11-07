@@ -119,6 +119,12 @@
     <Compile Include="Jobs\SyncProductJob.cs" />
     <Compile Include="Jobs\SyncSaleOrderUploadResultJob.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="RequestParams\AcctOAStatusParam.cs" />
+    <Compile Include="RequestParams\LH_ProductParam.cs" />
+    <Compile Include="RequestParams\LH_SaleOrderParam.cs" />
+    <Compile Include="RequestParams\ObOrderUploadParam.cs" />
+    <Compile Include="RequestParams\QueryObOrderPageParam.cs" />
+    <Compile Include="RequestParams\QueryObPageParam.cs" />
     <Compile Include="Schedule\SyncSchedule.cs" />
     <Compile Include="WebCommon\AbsBaseRequest.cs" />
     <Compile Include="WebCommon\AbstractRequestParams.cs" />

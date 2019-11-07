@@ -3,6 +3,7 @@ using hn.Common;
 using Newtonsoft.Json;
 using hn.ArrowInterface.Entities;
 using System.Collections.Generic;
+using System.Linq;
 
 namespace hn.ArrowInterface.Jobs
 {
@@ -26,7 +27,7 @@ namespace hn.ArrowInterface.Jobs
                 {
                     try
                     {
-                        foreach (var row in tmp)
+                        foreach (var row in tmp.AsParallel())
                         {
                             Helper.Delete<Order>(row.KeyId());
                             Helper.Insert(row);
@@ -34,7 +35,7 @@ namespace hn.ArrowInterface.Jobs
                     }
                     catch (Exception e)
                     {
-                        string message = string.Format("销售订单上传结果：{0}", JsonConvert.SerializeObject(row));
+                        string message = string.Format("销售订单上传结果：{0}", JsonConvert.SerializeObject(tmp));
                         LogHelper.Info(message);
                         LogHelper.Error(e);
                         return false;
