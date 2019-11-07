@@ -110,7 +110,6 @@
     <Compile Include="Jobs\SyncInventoryDayJob.cs" />
     <Compile Include="Jobs\SyncInventoryJob.cs" />
     <Compile Include="Jobs\ISyncJob.cs" />
-    <Compile Include="Jobs\SyncJobDispatcher.cs" />
     <Compile Include="Jobs\SyncobOrderUploadJob.cs" />
     <Compile Include="Jobs\SyncqueryObOrderPageJob.cs" />
     <Compile Include="Jobs\SyncQueryObPageJob.cs" />

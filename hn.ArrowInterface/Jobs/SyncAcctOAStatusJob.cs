@@ -1,16 +1,31 @@
 ﻿using System;
+using System.Configuration;
+using hn.ArrowInterface.RequestParams;
+using hn.ArrowInterface.WebCommon;
 using hn.Common;
 using Newtonsoft.Json;
 
 namespace hn.ArrowInterface.Jobs
 {
+    [Obsolete("不用定时执行")]
     public class SyncAcctOAStatusJob : AbsJob
     {
+        protected override AbstractRequestParams GetParams()
+        {
+            throw new NotImplementedException();
+        }
+
         public override bool Sync()
         {
-            var token = GetToken();
+            //不同定时执行
+            return true;
 
-            var result = Interface.AcctOaStatus(token.Token);
+            var token = GetToken();
+            //请求参数
+            var pars = new AcctOAStatusParam();
+            pars.acctCode = ConfigurationManager.AppSettings["dealerCode"];
+
+            var result = Interface.AcctOaStatus(token.Token,pars);
 
             if (result.Success)
             {

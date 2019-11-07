@@ -1,16 +1,27 @@
 ﻿ using System;
-using hn.Common;
+ using hn.ArrowInterface.RequestParams;
+ using hn.ArrowInterface.WebCommon;
+ using hn.Common;
 using Newtonsoft.Json;
 
 namespace hn.ArrowInterface.Jobs
 {
+    [Obsolete("实时调用，不需要定时同步")]
     public class SyncobOrderUploadJob : AbsJob
     {
+        protected override AbstractRequestParams GetParams()
+        {
+            throw new NotImplementedException();
+        }
+
         public override bool Sync()
         {
             var token = GetToken();
 
-            var result = Interface.obOrderUpload(token.Token);
+            var pars=new ObOrderUploadParam();
+
+
+            var result = Interface.obOrderUpload(token.Token,pars);
 
             if (result.Success)
             {
