@@ -39,6 +39,9 @@ namespace hn.ArrowInterface.Jobs
 
         }
 
-        
+        protected override AbstractRequestParams GetParams()
+        {
+            throw new NotImplementedException();
+        }
     }
 }

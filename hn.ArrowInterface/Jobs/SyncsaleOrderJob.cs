@@ -1,4 +1,6 @@
 ﻿using System;
+using System.Configuration;
+using System.Linq;
 using hn.ArrowInterface.Entities;
 using hn.ArrowInterface.RequestParams;
 using hn.ArrowInterface.WebCommon;
@@ -11,7 +13,31 @@ namespace hn.ArrowInterface.Jobs
     {
         protected override AbstractRequestParams GetParams()
         {
-            throw new NotImplementedException();
+
+            //查历史同步记录
+            var jobRecord = Helper.GetWhere<SyncJob_Definition>(new SyncJob_Definition() { JobClassName = this.JobName }).FirstOrDefault();
+
+            var pars = new LH_SaleOrderParam();
+            pars.attr1 = ConfigurationManager.AppSettings["dealerCode"];
+            if (jobRecord == null)
+            {
+                pars.attr1 = "2019-01-02 10:28:54";
+
+                jobRecord = new SyncJob_Definition();
+                jobRecord.JobClassName = this.JobName;
+                jobRecord.LastExecute = DateTime.Now;
+            }
+            else
+            {
+                var attrs = JsonConvert.DeserializeAnonymousType(jobRecord.ParasJSON,
+                    new { attr1 = "", attr2 = "", attr3 = "" });
+                //如果已存在同步历史，取上一次同步参数的结束时间再往前5分钟作为本次同步的开始时间
+                pars.attr1 = DateTime.Parse(attrs.attr3).AddMinutes(-5).ToString(DateTimeFormat);
+            }
+
+            pars.attr2 = DateTime.Now.ToString(DateTimeFormat);
+
+            return pars;
         }
 
         public override bool Sync()

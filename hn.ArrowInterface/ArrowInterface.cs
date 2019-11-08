@@ -12,12 +12,11 @@ namespace hn.ArrowInterface
     public class ArrowInterface : AbsBaseRequest
     {
         /// <summary>
-        ///     登录接口
+        ///     1、登录接口
         /// </summary>
         /// <returns></returns>
         public AuthorizationToken GetToken()
-        {
-            var url = GlobParams.ApiLogin;
+        { 
             var username = ConfigurationManager.AppSettings["username"];
             var password = ConfigurationManager.AppSettings["password"];
 
@@ -25,103 +24,69 @@ namespace hn.ArrowInterface
             pars.Add("username", username);
             pars.Add("password", password);
 
-            return BaseRequest<AuthorizationToken>(url, null, pars);
+            return BaseRequest<AuthorizationToken>(GlobParams.ApiLogin, null, pars);
         }
-
         /// <summary>
-        ///     库存下载接口
+        ///     2、库存下载接口
         /// </summary>
         /// <param name="token"></param>
         /// <returns></returns>
         public AbsRequestResult<QuerylHInventoryPageResult> QueryLHInventoryPage(string token, QueryLHInventoryPageParam pars)
         {
-            var url = GlobParams.QueryLHInventoryPageURL;
-            
-
-            return BaseRequest<AbsRequestResult<QuerylHInventoryPageResult>, QuerylHInventoryPageResult>(url, token,
-                pars.ToDictionary());
+            return BaseRequest<AbsRequestResult<QuerylHInventoryPageResult>, QuerylHInventoryPageResult>(GlobParams.QueryLHInventoryPageURL, token, pars.ToDictionary());
         }
-
         /// <summary>
-        ///     物料下载接口
+        ///     3、华耐日销出库下载
+        /// </summary>
+        /// <param name="token"></param>
+        /// <param name="data">上传的日销出库数据</param>
+        /// <returns></returns>
+        public AbsRequestResult HnInventoryBatchInsert(string token, List<HnInventoryBatchInsertEntity> data)
+        {
+            var json = JsonConvert.SerializeObject(data);
+            return BaseRequest<AbsRequestResult>(GlobParams.Inventory_BatchInsertURL, token, json);
+        }
+        /// <summary>
+        ///     4、	库存结存数据下载
+        /// </summary>
+        /// <param name="token"></param>
+        /// <param name="data"></param>
+        /// <returns></returns>
+        public AbsRequestResult HnObOrderDayBatchInsert(string token, List<HnObOrderBatchInsertEntityDto> data)
+        {
+            var json = JsonConvert.SerializeObject(data);
+
+            return BaseRequest<AbsRequestResult>(GlobParams.ObOrderDay_BatchInsertURL, token, json);
+        }
+        /// <summary>
+        ///     5、物料下载接口
         /// </summary>
         /// <param name="token"></param>
         /// <returns></returns>
         public AbsRequestResult<LH_Product> QueryProdPage(string token,LH_ProductParam pars)
-        {
-            var url = GlobParams.Item_QueryProdPage;
-
-            return BaseRequest<AbsRequestResult<LH_Product>, LH_Product>(url, token, pars.ToDictionary());
+        { 
+            return BaseRequest<AbsRequestResult<LH_Product>, LH_Product>(GlobParams.Item_QueryProdPage, token, pars.ToDictionary());
         }
-
         /// <summary>
-        ///     政策下载
+        ///     6、折扣政策下载
         /// </summary>
         /// <param name="token"></param>
         /// <returns></returns>
-        public AbsRequestResult<QueryPolicy> QueryPolicy(string token)
+        public AbsRequestResult<QueryPolicy> QueryPolicy(string token, QueryPolicyParam queryPolicyParam)
         {
-            var url = GlobParams.QueryPolicyList;
-            var dealerCode = ConfigurationManager.AppSettings["dealerCode"];
-
-            var pars = new Dictionary<string, object>();
-            pars.Add("acctKey", dealerCode);
-
-            return BaseRequest<AbsRequestResult<QueryPolicy>, QueryPolicy>(url, token, pars);
+            return BaseRequest<AbsRequestResult<QueryPolicy>, QueryPolicy>(GlobParams.QueryPolicyList, token, queryPolicyParam.ToDictionary());
         }
-
         /// <summary>
         ///     7、销售订单上传
         /// </summary>
         /// <param name="token"></param>
         /// <returns></returns>
-        public AbsRequestResult<Order> SaleOrderUpload(string token, SaleOrderUpload saleOrderUpload)
-        {
-            //saleOrderUpload = new SaleOrderUpload
-            //{
-            //    orderType = "常规订单",
-            //    acctCode = "AW04298",
-            //    tradeCompanyName = "广东乐华智能卫浴有限公司",
-            //    billIdName = "测试法人",
-            //    salesChannel = "零售",
-            //    lHbuType = "常规",
-            //    contractWay = "经销",
-            //    orderProdLine = "卫浴",
-            //    balanceName = "测试-箭牌卫浴事业部-卫浴-零售",
-            //    lHexpectedArrivedDate = DateTime.Now.AddDays(1).ToString("yyyy-MM-dd"),
-            //    lHdepositOrNot = "N",
-            //    lHdiscountType = "底价不变",
-            //    lHorgName = "箭牌卫浴事业部",
-            //    submissionDate = DateTime.Now,
-            //    source = "华耐系统",
-            //    lHOutSystemID = "testorder001",
-            //    lHOutSystemOd = "dsdd-9999901",
-            //    lHpromotionPolicyID = "",
-            //    consignee = "1",
-            //    lHoutboundOrder = "",
-            //    lHAdvertingMoneyType = "PayForGoods",
-            //    remarks = "",
-            //    saleOrderItemList = new[]
-            //    {
-            //        new SaleOrderUploadDetailed
-            //        {
-            //            prodCode = "17103103036416",
-            //            qTY = 10,
-            //            lHrowSource = "华耐系统",
-            //            lHOutSystemID = "testorder001",
-            //            lHOutSystemLineID = "testorderitem001",
-            //            lHcomments = "",
-            //            lHDctpolicyItemId = "W-57ASBU2SD"
-            //        }
-            //    }
-            //};
-
-
-            return BaseRequest<AbsRequestResult<Order>>(GlobParams.SaleSaleUpload, token, saleOrderUpload);
+        public AbsRequestResult<Order> SaleOrderUpload(string token, SaleOrderUploadParam pars)
+        { 
+            return BaseRequest<AbsRequestResult<Order>>(GlobParams.SaleSaleUpload, token, pars.ToDictionary());
         }
-
         /// <summary>
-        ///     8、审核状态回传3
+        ///     8、审核状态回传
         /// </summary>
         /// <param name="token"></param>
         /// <param name="pars"></param>
@@ -130,29 +95,26 @@ namespace hn.ArrowInterface
         {
             return BaseRequest<AbsRequestResult<AcctOAStatus>>(GlobParams.QueryAcctOAStatus, token, pars.ToDictionary());
         }
-
         /// <summary>
         ///     9、定制订单下载
         /// </summary>
         /// <param name="token"></param>
-        /// <returns></returns>
+        /// <returns></returns> 
         public AbsRequestResult<SaleOrder> SaleOrder(string token,LH_SaleOrderParam pars)
         {
-            return BaseRequest<AbsRequestResult<SaleOrder>>(GlobParams.QueryCustomOrderPage, token, pars.ToDictionary());
+            return BaseRequest<AbsRequestResult<SaleOrder>>(GlobParams.QueryCustomOrderPage, token, pars.ToDictionary()); 
         }
-
         /// <summary>
         ///     10、物流部开单记录下载
         /// </summary>
         /// <param name="token"></param>
-        /// <returns></returns>
+        /// <returns></returns> 
         public AbsRequestResult<QueryObPage> QueryObPage(string token,QueryObPageParam pars)
         {
-            return BaseRequest<AbsRequestResult<QueryObPage>>(GlobParams.QueryObPage, token, pars.ToDictionary());
+            return BaseRequest<AbsRequestResult<QueryObPage>>(GlobParams.QueryObPage, token, pars.ToDictionary()); 
         }
-
         /// <summary>
-        /// 发货车牌号下载
+        ///     11、发货车牌号下载
         /// </summary>
         /// <param name="token"></param>
         /// <returns></returns>
@@ -160,43 +122,14 @@ namespace hn.ArrowInterface
         {
             return BaseRequest<AbsRequestResult<bool>>(GlobParams.GoodsCarNoDown, token, pars.ToDictionary());
         }
-
         /// <summary>
         ///     12、出库单下载
         /// </summary>
         /// <param name="token"></param>
         /// <returns></returns>
         public AbsRequestResult<OutOrder> queryObOrderPage(string token,QueryObOrderPageParam pars)
-        {
-            return BaseRequest<AbsRequestResult<OutOrder>>(GlobParams.OutOrderDown, token, pars.ToDictionary());
-        }
-
-        /// <summary>
-        ///     华耐日销出库下载
-        /// </summary>
-        /// <param name="token"></param>
-        /// <param name="data">上传的日销出库数据</param>
-        /// <returns></returns>
-        public AbsRequestResult HnInventoryBatchInsert(string token, List<HnInventoryBatchInsertEntity> data)
-        {
-            var url = GlobParams.Inventory_BatchInsertURL;
-            var json = JsonConvert.SerializeObject(data);
-            return BaseRequest<AbsRequestResult>(url, token, json);
-        }
-
-        /// <summary>
-        ///     四、	库存结存数据下载
-        /// </summary>
-        /// <param name="token"></param>
-        /// <param name="data"></param>
-        /// <returns></returns>
-        public AbsRequestResult HnObOrderDayBatchInsert(string token, List<HnObOrderBatchInsertEntityDto> data)
-        {
-            var url = GlobParams.ObOrderDay_BatchInsertURL;
-
-            var json = JsonConvert.SerializeObject(data);
-
-            return BaseRequest<AbsRequestResult>(url, token, json);
+        { 
+            return BaseRequest<AbsRequestResult<OutOrder>>(GlobParams.OutOrderDown, token, pars.ToDictionary()); 
         }
     }
 }

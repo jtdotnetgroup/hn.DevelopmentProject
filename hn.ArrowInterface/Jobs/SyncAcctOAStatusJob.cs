@@ -1,5 +1,7 @@
 ﻿using System;
 using System.Configuration;
+using System.Linq;
+using hn.ArrowInterface.Entities;
 using hn.ArrowInterface.RequestParams;
 using hn.ArrowInterface.WebCommon;
 using hn.Common;
@@ -12,18 +14,27 @@ namespace hn.ArrowInterface.Jobs
     {
         protected override AbstractRequestParams GetParams()
         {
-            throw new NotImplementedException();
+            //查历史同步记录
+            var jobRecord = Helper.GetWhere<SyncJob_Definition>(new SyncJob_Definition() { JobClassName = this.JobName }).FirstOrDefault();
+
+            var pars = new AcctOAStatusParam();
+            pars.acctCode = ConfigurationManager.AppSettings["dealerCode"];
+            if (jobRecord == null)
+            { 
+
+                jobRecord = new SyncJob_Definition();
+                jobRecord.JobClassName = this.JobName;
+                jobRecord.LastExecute = DateTime.Now;
+            }  
+            return pars;
         }
 
         public override bool Sync()
-        {
-            //不同定时执行
-            return true;
+        { 
 
             var token = GetToken();
             //请求参数
-            var pars = new AcctOAStatusParam();
-            pars.acctCode = ConfigurationManager.AppSettings["dealerCode"];
+            var pars = GetParams() as AcctOAStatusParam; 
 
             var result = Interface.AcctOaStatus(token.Token,pars);
 
