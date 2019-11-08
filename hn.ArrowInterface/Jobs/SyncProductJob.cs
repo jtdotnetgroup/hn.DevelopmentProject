@@ -21,7 +21,7 @@ namespace hn.ArrowInterface.Jobs
             pars.attr1 = ConfigurationManager.AppSettings["dealerCode"];
             if (jobRecord == null)
             {
-                pars.attr1 = "2019-01-02 10:28:54";
+                pars.attr2 = "2019-01-02 10:28:54";
 
                 jobRecord = new SyncJob_Definition();
                 jobRecord.JobClassName = this.JobName;
@@ -32,10 +32,10 @@ namespace hn.ArrowInterface.Jobs
                 var attrs = JsonConvert.DeserializeAnonymousType(jobRecord.ParasJSON,
                     new { attr1 = "", attr2 = "", attr3 = "" });
                 //如果已存在同步历史，取上一次同步参数的结束时间再往前5分钟作为本次同步的开始时间
-                pars.attr1 = DateTime.Parse(attrs.attr3).AddMinutes(-5).ToString(DateTimeFormat);
+                pars.attr2 = DateTime.Parse(attrs.attr3).AddMinutes(-5).ToString(DateTimeFormat);
             }
 
-            pars.attr2 = DateTime.Now.ToString(DateTimeFormat);
+            pars.attr3 = DateTime.Now.ToString(DateTimeFormat);
 
             return pars;
         }

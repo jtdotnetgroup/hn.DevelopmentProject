@@ -17,7 +17,7 @@ namespace ArrowInterfaceTest
         static void Main(string[] args)
         {
             DateTime d1 = DateTime.Now;
-            Test();
+            Test(5);
             DateTime d2 = DateTime.Now;
             TimeSpan d3 = d2.Subtract(d1);
             string msg = "相差:" + d3.Days.ToString() + "天" + d3.Hours.ToString() + "小时" + d3.Minutes.ToString() + "分钟" + d3.Seconds.ToString() + "秒";
@@ -28,14 +28,28 @@ namespace ArrowInterfaceTest
         /// <summary>
         /// 需要测试的方法
         /// </summary>
-        static void Test()
+        static void Test(int num)
         {
-            int num = 2;
             switch (num)
             {
+                case 1:
+                    {
+                        TestLogin();
+                        break;
+                    }
                 case 2:
                     {
                         TestInventoryJob();
+                        break;
+                    }
+                case 3:
+                    {
+                        TestInventoryDayJob();
+                        break;
+                    }
+                case 4:
+                    {
+                        TestHnObOrderDay();
                         break;
                     }
                 case 5:
@@ -68,24 +82,26 @@ namespace ArrowInterfaceTest
                         TestQueryObPageJob();
                         break;
                     }
+                case 11:
+                    {
+                        TestQueryObPageJob();
+                        break;
+                    }
                 case 12:
                     {
-                        TestSyncQueryObOrderJob();
+                        TestQueryObOrderJob();
                         break;
                     }
             }
         }
+
+        #region 接口的方法
+        /// <summary>
+        /// 1、Token获取接口
+        /// </summary>
         static void TestLogin()
         {
             iInterface.GetToken();
-        } 
-        static void TestDelete()
-        {
-            OracleDBHelper helper = new OracleDBHelper("");
-            AuthorizationToken token = new AuthorizationToken();
-
-            helper.Delete<AuthorizationToken>("");
-
         }
         /// <summary>
         /// 2、库存下载接口
@@ -94,6 +110,22 @@ namespace ArrowInterfaceTest
         {
             ISyncJob job = new SyncInventoryJob();
             job.Sync(); 
+        }
+        /// <summary>
+        /// 3、华耐日销出库下载
+        /// </summary>
+        static void TestInventoryDayJob()
+        {
+            ISyncJob job = new SyncInventoryDayJob();
+            job.Sync();
+        }
+        /// <summary>
+        /// 4、库存结存数据下载
+        /// </summary>
+        static void TestHnObOrderDay()
+        {
+            ISyncJob job = new SyncHnObOrderDay();
+            job.Sync();
         }
         /// <summary>
         /// 5、物料下载接口
@@ -143,27 +175,31 @@ namespace ArrowInterfaceTest
             ISyncJob job = new SyncQueryObPageJob();
             job.Sync();
         }
-        static void TestSyncHnObOrderDay()
+        /// <summary>
+        /// 11  物流部开单记录下载
+        /// </summary>
+        static void TestobOrderUploadJob()
         {
-            ISyncJob job = new SyncHnObOrderDay();
+            ISyncJob job = new SyncobOrderUploadJob();
             job.Sync();
-            Console.WriteLine("OK");
-        }
-
-        static void TestSyncInventoryDayJob()
-        {
-            ISyncJob job = new SyncInventoryDayJob();
-            job.Sync();
-            Console.WriteLine("OK");
         }
         /// <summary>
         /// 12、出库单下载
         /// </summary>
-        static void TestSyncQueryObOrderJob()
+        static void TestQueryObOrderJob()
         {
             ISyncJob job   =new SyncqueryObOrderPageJob();
             job.Sync();
-            
+        }
+        #endregion
+        
+        static void TestDelete()
+        {
+            OracleDBHelper helper = new OracleDBHelper("");
+            AuthorizationToken token = new AuthorizationToken();
+
+            helper.Delete<AuthorizationToken>("");
+
         }
     }
 }

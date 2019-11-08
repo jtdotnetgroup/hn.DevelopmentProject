@@ -1,5 +1,7 @@
 ﻿ using System;
- using hn.ArrowInterface.RequestParams;
+using System.Linq;
+using hn.ArrowInterface.Entities;
+using hn.ArrowInterface.RequestParams;
  using hn.ArrowInterface.WebCommon;
  using hn.Common;
 using Newtonsoft.Json;
@@ -11,7 +13,13 @@ namespace hn.ArrowInterface.Jobs
     {
         protected override AbstractRequestParams GetParams()
         {
-            throw new NotImplementedException();
+            //查历史同步记录
+            var jobRecord = Helper.GetWhere<SyncJob_Definition>(new SyncJob_Definition() { JobClassName = this.JobName }).FirstOrDefault();
+
+            var pars = new ObOrderUploadParam();
+            pars.lhodoID = "";
+            pars.lhplateNo = "";
+            return pars;
         }
 
         public override bool Sync()

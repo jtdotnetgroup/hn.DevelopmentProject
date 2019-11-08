@@ -10,6 +10,7 @@ using System.Configuration;
 
 namespace hn.ArrowInterface.Jobs
 {
+    [Obsolete("不用定时执行")]
     public class SyncSaleOrderUploadResultJob : AbsJob
     {
         public override bool Sync()
