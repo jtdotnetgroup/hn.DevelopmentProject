@@ -23,9 +23,5 @@ namespace hn.ArrowInterface.Jobs
             return result.Success;
         }
 
-        protected override AbstractRequestParams GetParams()
-        {
-            throw new System.NotImplementedException();
-        }
     }
 }
