@@ -5,6 +5,7 @@ using System.ComponentModel.DataAnnotations.Schema;
 using System.Data;
 using System.Data.Common;
 using System.Linq;
+using System.Reflection;
 using System.Text;
 using Newtonsoft.Json;
 using Oracle.ManagedDataAccess.Client;
@@ -219,6 +220,7 @@ namespace hn.Common
             var pis = t.GetProperties();
 
             var keyFieldName = "";
+            PropertyInfo keyPropertyInfo = null;
 
             foreach (var pi in pis)
             {
@@ -226,12 +228,23 @@ namespace hn.Common
                 if (keyAttr)
                 {
                     keyFieldName = pi.Name;
+
+                    var fieldName = pi.Name;
+
+                    if (pi.GetCustomAttributes(true).SingleOrDefault(o => o.GetType() == typeof(ColumnAttribute)) is
+                        ColumnAttribute column)
+                        keyFieldName = column.Name;
+
+                    keyPropertyInfo = pi;
+
                     break;
                 }
             }
 
             if (string.IsNullOrEmpty(keyFieldName)) throw new ArgumentException(string.Format("{0}类未指定Key字段", t.Name));
-            var where = string.Format(" AND {0}=:{1}", keyFieldName, keyFieldName);
+
+            var where = string.Format(" AND {0}=:{1}", keyFieldName, keyPropertyInfo.Name);
+
             var sql = GetUpdateSql<T>(where);
 
             var cmd = GetCommand(sql, obj);

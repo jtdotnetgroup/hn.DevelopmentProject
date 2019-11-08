@@ -90,6 +90,21 @@ namespace hn.ArrowInterface.WebCommon
         {
             return BaseRequest<T>(url, token, JsonConvert.SerializeObject(json));
         }
+        public T BaseRequest<T>(string url, string token, string json)
+        {
+            HttpContent content;
+            Dictionary<string, string> dic = new Dictionary<string, string>();
+            content = new StringContent(json, Encoding.UTF8, "application/json");
+            client.DefaultRequestHeaders.Authorization = AuthenticationHeaderValue.Parse("bearer " + token);
+
+            client.DefaultRequestHeaders.Authorization = AuthenticationHeaderValue.Parse("bearer " + token);
+
+            LogHelper.Info($@"开始请求：{url}\r\n参数：{json}");
+            var res = client.PostAsync(url, content).Result;
+            var result = JsonConvert.DeserializeObject<T>(res.Content.ReadAsStringAsync().Result);
+            LogHelper.Info($@"请求完成");
+            return result;
+        }
         public T BaseRequest<T>(string url, string token, Dictionary<string, object> pars)
         {
             HttpContent content;

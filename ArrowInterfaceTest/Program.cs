@@ -15,21 +15,25 @@ namespace ArrowInterfaceTest
     {
         static ArrowInterface iInterface = new ArrowInterface();
         static void Main(string[] args)
+        { 
+            Start();
+        }
+        static void Start()
         {
-            DateTime d1 = DateTime.Now;
-            Test(5);
-            DateTime d2 = DateTime.Now;
-            TimeSpan d3 = d2.Subtract(d1);
-            string msg = "相差:" + d3.Days.ToString() + "天" + d3.Hours.ToString() + "小时" + d3.Minutes.ToString() + "分钟" + d3.Seconds.ToString() + "秒";
-            Console.WriteLine(msg); 
-            LogHelper.Init(Console.Out); 
-            Console.ReadKey();
+            Console.WriteLine(System.Environment.NewLine + "请输入测试方法,如需要退出方法请输入0");
+            int num = Convert.ToInt32(Console.ReadLine());
+            if (num == 0) { Console.WriteLine("程序已退出"); }
+            else
+            { 
+                Test(num); 
+            }
         }
         /// <summary>
         /// 需要测试的方法
         /// </summary>
         static void Test(int num)
         {
+            DateTime d1 = DateTime.Now;
             switch (num)
             {
                 case 1:
@@ -93,6 +97,10 @@ namespace ArrowInterfaceTest
                         break;
                     }
             }
+            TimeSpan d3 = DateTime.Now.Subtract(d1);
+            string msg = "用时:" + d3.Days.ToString() + "天" + d3.Hours.ToString() + "小时" + d3.Minutes.ToString() + "分钟" + d3.Seconds.ToString() + "秒" + d3.Milliseconds.ToString() + "毫秒";
+            Console.WriteLine(msg);
+            Start();
         }
 
         #region 接口的方法

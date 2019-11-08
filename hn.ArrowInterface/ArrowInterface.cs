@@ -42,9 +42,8 @@ namespace hn.ArrowInterface
         /// <param name="data">上传的日销出库数据</param>
         /// <returns></returns>
         public AbsRequestResult HnInventoryBatchInsert(string token, List<HnInventoryBatchInsertEntity> data)
-        {
-            var json = JsonConvert.SerializeObject(data);
-            return BaseRequest<AbsRequestResult>(GlobParams.Inventory_BatchInsertURL, token, json);
+        { 
+            return BaseRequest<AbsRequestResult>(GlobParams.Inventory_BatchInsertURL, token, data);
         }
         /// <summary>
         ///     4、	库存结存数据下载
@@ -53,10 +52,8 @@ namespace hn.ArrowInterface
         /// <param name="data"></param>
         /// <returns></returns>
         public AbsRequestResult HnObOrderDayBatchInsert(string token, List<HnObOrderBatchInsertEntityDto> data)
-        {
-            var json = JsonConvert.SerializeObject(data);
-
-            return BaseRequest<AbsRequestResult>(GlobParams.ObOrderDay_BatchInsertURL, token, json);
+        { 
+            return BaseRequest<AbsRequestResult>(GlobParams.ObOrderDay_BatchInsertURL, token, data);
         }
         /// <summary>
         ///     5、物料下载接口
