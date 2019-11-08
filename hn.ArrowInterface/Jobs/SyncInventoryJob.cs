@@ -11,13 +11,20 @@ namespace hn.ArrowInterface.Jobs
 {
     public class SyncInventoryJob:AbsJob
     {
+        protected override AbstractRequestParams GetParams()
+        {
+            QueryLHInventoryPageParam pars=new QueryLHInventoryPageParam();
+            pars.dealerCode = DealerCode;
+            return pars;
+        }
+
         public override bool Sync()
         {
             var token = GetToken();
-            //拿请求参数
+
             var pars = GetParams() as QueryLHInventoryPageParam;
-            
-            var result = Interface.QueryLHInventoryPage(token.Token, pars);
+
+            var result = Interface.QueryLHInventoryPage(token.Token,pars);
 
             if (result.Success)
             {
@@ -35,30 +42,13 @@ namespace hn.ArrowInterface.Jobs
                         LogHelper.Error(e);
                     }
                 }
-                //同步完成，更新请求记录
+
                 UpdateSyncRecord(pars);
+
                 return true;
             }
 
             return false;
-        }
-
-        protected override AbstractRequestParams GetParams()
-        {
-            //查历史同步记录
-            var jobRecord = Helper.GetWhere<SyncJob_Definition>(new SyncJob_Definition() { JobClassName = this.JobName }).FirstOrDefault();
-
-            var pars = new QueryLHInventoryPageParam();
-            pars.dealerCode = ConfigurationManager.AppSettings["dealerCode"];
-            if (jobRecord == null)
-            { 
-
-                jobRecord = new SyncJob_Definition();
-                jobRecord.JobClassName = this.JobName;
-                jobRecord.LastExecute = DateTime.Now;
-            } 
-
-            return pars;
         }
     }
 }

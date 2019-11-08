@@ -65,7 +65,7 @@ namespace hn.ArrowInterface.Jobs
             }
             else
             {
-                var attrs = JsonConvert.DeserializeAnonymousType(jobRecord.ParasJSON,
+                var attrs = JsonConvert.DeserializeAnonymousType(jobRecord.ParsJson,
                     new { attr1 = "", attr2 = "", attr3 = "" });
                 //如果已存在同步历史，取上一次同步参数的结束时间再往前5分钟作为本次同步的开始时间
                 pars.attr2 = DateTime.Parse(attrs.attr3).AddMinutes(-5).ToString(DateTimeFormat);

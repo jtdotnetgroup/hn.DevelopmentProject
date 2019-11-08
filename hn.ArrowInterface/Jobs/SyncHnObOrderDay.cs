@@ -9,6 +9,11 @@ namespace hn.ArrowInterface.Jobs
 {
     public class SyncHnObOrderDay:AbsJob 
     {
+        protected override AbstractRequestParams GetParams()
+        {
+            throw new NotImplementedException();
+        }
+
         public override bool Sync()
         {
             var token = GetToken();

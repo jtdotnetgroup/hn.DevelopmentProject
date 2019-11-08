@@ -98,7 +98,7 @@ namespace ArrowInterfaceTest
         #region 接口的方法
         /// <summary>
         /// 1、Token获取接口
-        /// </summary>
+        /// </summary>  
         static void TestLogin()
         {
             iInterface.GetToken();
@@ -157,7 +157,7 @@ namespace ArrowInterfaceTest
         static void TestAcctOAStatusJob()
         {
             ISyncJob job = new SyncAcctOAStatusJob();
-            job.Sync(); 
+            job.Sync();
         }
         /// <summary>
         /// 9  定制订单下载
@@ -185,7 +185,7 @@ namespace ArrowInterfaceTest
         }
         /// <summary>
         /// 12、出库单下载
-        /// </summary>
+        /// </summary> 
         static void TestQueryObOrderJob()
         {
             ISyncJob job   =new SyncqueryObOrderPageJob();

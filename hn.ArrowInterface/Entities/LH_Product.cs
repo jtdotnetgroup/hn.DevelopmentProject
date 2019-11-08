@@ -7,7 +7,7 @@ namespace hn.ArrowInterface.Entities
     [Table("LH_PRODUCT")]
     public class LH_Product : IComputeFID
     {
-        public DateTime LastUpdate { get; set; }
+        public DateTime? LastUpdate { get; set; }
         public string lHprodChannel { get; set; }
         public string prodStandard { get; set; }
 

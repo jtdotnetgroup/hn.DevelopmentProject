@@ -5,6 +5,11 @@ namespace hn.ArrowInterface.Jobs
 {
     public class SyncInventoryDayJob:AbsJob
     {
+        protected override AbstractRequestParams GetParams()
+        {
+            throw new System.NotImplementedException();
+        }
+
         public override bool Sync()
         {
             var token = GetToken();
@@ -18,9 +23,5 @@ namespace hn.ArrowInterface.Jobs
             return result.Success;
         }
 
-        protected override AbstractRequestParams GetParams()
-        {
-            throw new System.NotImplementedException();
-        }
     }
 }

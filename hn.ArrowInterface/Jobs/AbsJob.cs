@@ -18,7 +18,7 @@ namespace hn.ArrowInterface.Jobs
         protected  OracleDBHelper Helper { get; set; }
         protected int Interval { get; set; }
         protected string JobName { get; set; }
-
+        protected string DealerCode = ConfigurationManager.AppSettings["dealerCode"];
         protected string DateTimeFormat { get; set; }
 
         /// <summary>
@@ -41,7 +41,7 @@ namespace hn.ArrowInterface.Jobs
                 jobRecord.JobClassName = this.JobName;
             }
             jobRecord.LastExecute = DateTime.Now;
-            jobRecord.ParasJSON = JsonConvert.SerializeObject(pars);
+            jobRecord.ParsJson = JsonConvert.SerializeObject(pars);
             //更新标记为true时更新同步记录，为false插入新的同步记录
             var result = isUpdate ? this.Helper.Update(jobRecord) : this.Helper.Insert(jobRecord);
 
@@ -97,26 +97,13 @@ namespace hn.ArrowInterface.Jobs
             where.JobClassName = this.JobName;
             var jobRecord = Helper.GetWhere(where).SingleOrDefault();
 
-            if (jobRecord != null&&( DateTime.Now-jobRecord.LastExecute).TotalMinutes<Interval)
+            if (jobRecord.LastExecute != null && (jobRecord != null&&( DateTime.Now-jobRecord.LastExecute.Value).TotalMinutes<Interval))
             {
                 //未达到设定同步间隔
                 return;
             }
 
-            if (Sync())
-            {
-                if (jobRecord == null)
-                {
-                    jobRecord = new SyncJob_Definition() { JobClassName = JobName,LastExecute = DateTime.Now};
-
-                    Helper.Insert(jobRecord);
-                    return;
-                }
-
-                jobRecord.LastExecute=DateTime.Now;
-
-                Helper.Update(jobRecord);
-            }
+            Sync();
         }
 
 
