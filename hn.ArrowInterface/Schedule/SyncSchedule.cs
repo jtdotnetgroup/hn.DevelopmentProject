@@ -26,10 +26,9 @@ namespace hn.ArrowInterface.Schedule
         {
             //反射当前程序集信息
             var assembly = Assembly.GetExecutingAssembly();
-            //反射获取当前程序信中，所有实现了ISyncJob接口的类
-            var jobsTypes = assembly.GetTypes().Where(p => typeof(ISyncJob).IsAssignableFrom(p));
+            //反射获取当前程序集中，所有实现了ISyncJob接口,并且没有标注Obsolete特性的类
+            var jobsTypes = assembly.GetTypes().Where(p => typeof(ISyncJob).IsAssignableFrom(p)&&p.GetCustomAttributes(true).Count(c=>c is ObsoleteAttribute)==0);
             //获取所有接口的同步记录
-            List<SyncJob_Definition> job_definitions = Helper.GetAll<SyncJob_Definition>();
             ISchedulerFactory factory = new StdSchedulerFactory();
 
             foreach (var t in jobsTypes)

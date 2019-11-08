@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Linq;
+using hn.ArrowInterface.WebCommon;
 using hn.Common;
 using Newtonsoft.Json;
 
@@ -7,6 +8,11 @@ namespace hn.ArrowInterface.Jobs
 {
     public class SyncPolicyJob:AbsJob
     {
+        protected override AbstractRequestParams GetParams()
+        {
+            throw new NotImplementedException();
+        }
+
         public override bool Sync()
         {
             var token = GetToken();

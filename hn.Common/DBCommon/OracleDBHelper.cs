@@ -6,6 +6,7 @@ using System.Data;
 using System.Data.Common;
 using System.Linq;
 using System.Text;
+using Newtonsoft.Json;
 using Oracle.ManagedDataAccess.Client;
 
 namespace hn.Common
@@ -14,10 +15,14 @@ namespace hn.Common
     {
         private static readonly OracleClientFactory factory = new OracleClientFactory();
 
+        private  string conStr { get; set; }
+
         public OracleDBHelper(string conStr)
         {
+            this.conStr = conStr;
             conn = factory.CreateConnection();
             conn.ConnectionString = conStr;
+
         }
 
         public DbConnection conn { get; set; }
@@ -99,7 +104,7 @@ namespace hn.Common
             strbuilder.AppendFormat("INSERT INTO {0} ", tableName);
 
             var fields = "(";
-            var values = "VALUES (";
+            var values = " VALUES (";
 
             pis.ForEach(p =>
             {
@@ -190,7 +195,7 @@ namespace hn.Common
 
             try
             {
-                if (conn.State == ConnectionState.Closed) conn.Open();
+                if (conn.State==ConnectionState.Closed) conn.Open();
 
                 return cmd.ExecuteNonQuery() > 0;
             }
@@ -254,15 +259,23 @@ namespace hn.Common
         /// <returns></returns>
         public bool Insert<T>(T obj)
         {
+            var start = DateTime.Now;
             var sql = GetInsertSql<T>();
             var cmd = GetCommand(sql, obj);
             cmd.Connection = conn;
 
             try
             {
-                if (conn.State == ConnectionState.Closed) conn.Open();
+                LogHelper.Info($"插入数据【{typeof(T)}】");
+               if(conn.State==ConnectionState.Closed) conn.Open();
 
-                return cmd.ExecuteNonQuery() > 0;
+               var result = cmd.ExecuteNonQuery();
+                conn.Close();
+                
+                LogHelper.Info($"插入完成，耗时【{(DateTime.Now-start).TotalMilliseconds}】毫秒");
+
+
+               return result > 0;
             }
             catch (Exception e)
             {
@@ -455,34 +468,40 @@ namespace hn.Common
 
         public bool BatchInsert<T>(List<T> data)
         {
+            var start = DateTime.Now;
             if (data == null || data.Count == 0) return false;
-            var sql = "INSERT ALL \n";
+            var builder=new StringBuilder();
+            builder.Append("INSERT ALL \n");
+            var str = GetInsertSql<T>().Replace("INSERT", "");
 
-            foreach (var row in data)
+            data.ForEach(p =>
             {
-                var str = GetInsertSql<T>().Replace("INSERT", "");
-                sql += str + "\n";
-            }
+                builder.Append($"{str}\n");
+            });
 
-            sql += "SELECT 1 FROM DUAL";
+            builder.Append( " SELECT 1 FROM DUAL");
 
+            var sql = builder.ToString();
             var cmd = GetCommand(sql, data);
 
             cmd.Connection = conn;
 
             try
             {
+                LogHelper.Info($"批量插入数据【{typeof(T).Name}】【{data.Count}】条");
                 if (conn.State == ConnectionState.Closed) conn.Open();
 
-                var result = cmd.ExecuteNonQuery() > 0;
+                var result = cmd.ExecuteNonQuery() ;
                 conn.Close();
-                return result;
+                var timespan = DateTime.Now - start;
+                LogHelper.Info($"批量插入完成，耗时【{timespan.TotalMilliseconds}】毫秒");
+                return result>0;
             }
             catch (Exception e)
             {
                 LogHelper.Error(e);
-                LogHelper.Info("SQL:" + sql);
-                throw;
+                LogHelper.Info($"插入失败数据：\r\n{JsonConvert.SerializeObject(data)}\r\n");
+                return false;
             }
         }
 

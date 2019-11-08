@@ -57,7 +57,7 @@ namespace hn.ArrowInterface.WebCommon
 
             HttpResponseMessage res;
 
-            LogHelper.Info($@"开始请求：{url}\r\n参数：{json}");
+            LogHelper.Info($"开始请求：{url}\r\n参数：{json}");
             if (Method == "POST")
             {
                 res = client.PostAsync(url, content).Result;

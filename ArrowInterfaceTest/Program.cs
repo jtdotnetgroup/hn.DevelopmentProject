@@ -20,8 +20,8 @@ namespace ArrowInterfaceTest
 
             LogHelper.Init(Console.Out);
 
-            TestSyncQueryObOrderJob();
-            //TestProductJob();
+            ///*TestSyncQueryObOrderJob*/();
+            TestProductJob();
             //TestPolicyJob();
             //TestQueryObPageJob();
 
@@ -48,13 +48,13 @@ namespace ArrowInterfaceTest
         static void TestQueryLHInventoryPage()
         {
             var token = iInterface.GetToken();
-            var result = iInterface.QueryLHInventoryPage(token.Token); 
+            //var result = iInterface.QueryLHInventoryPage(token.Token); 
         }
 
         static void TestQueryProdPage()
         {
             var token = iInterface.GetToken();
-            var result = iInterface.QueryProdPage(token.Token); 
+            //var result = iInterface.QueryProdPage(token.Token); 
         }
 
         static void TestQueryPolicy()
@@ -101,8 +101,8 @@ namespace ArrowInterfaceTest
         /// </summary>
         static void TestAcctOAStatusJob()
         {
-            ISyncJob job = new SyncAcctOAStatusJob();
-            job.Sync(); 
+            //ISyncJob job = new SyncAcctOAStatusJob();
+            //job.Sync(); 
         }
         /// <summary>
         /// 9  定制订单下载

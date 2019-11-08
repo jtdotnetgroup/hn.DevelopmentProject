@@ -1,5 +1,7 @@
 ﻿using System;
 using System.Linq;
+using hn.ArrowInterface.RequestParams;
+using hn.ArrowInterface.WebCommon;
 using hn.Common;
 using Newtonsoft.Json;
 
@@ -7,11 +9,20 @@ namespace hn.ArrowInterface.Jobs
 {
     public class SyncInventoryJob:AbsJob
     {
+        protected override AbstractRequestParams GetParams()
+        {
+            QueryLHInventoryPageParam pars=new QueryLHInventoryPageParam();
+            pars.dealerCode = DealerCode;
+            return pars;
+        }
+
         public override bool Sync()
         {
             var token = GetToken();
 
-            var result = Interface.QueryLHInventoryPage(token.Token);
+            var pars = GetParams() as QueryLHInventoryPageParam;
+
+            var result = Interface.QueryLHInventoryPage(token.Token,pars);
 
             if (result.Success)
             {
@@ -29,6 +40,8 @@ namespace hn.ArrowInterface.Jobs
                         LogHelper.Error(e);
                     }
                 }
+
+                UpdateSyncRecord(pars);
 
                 return true;
             }

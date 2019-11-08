@@ -4,19 +4,23 @@ using Newtonsoft.Json;
 using hn.ArrowInterface.Entities;
 using System.Collections.Generic;
 using System.Linq;
+using hn.ArrowInterface.WebCommon;
 
 namespace hn.ArrowInterface.Jobs
 {
     public class SyncSaleOrderUploadResultJob : AbsJob
     {
+        protected override AbstractRequestParams GetParams()
+        {
+            throw new NotImplementedException();
+        }
+
         public override bool Sync()
         {
             var token = GetToken();
             //ICPOBILL m = Helper.Get<ICPOBILL>("SELECT * FROM ICPOBILL LIMIT 1");
             //List<ICPOBILLENTRY> mEntity = Helper.Select<ICPOBILLENTRY>("SELECT * FROM ICPOBILL ");
             SaleOrderUpload SelResult = new SaleOrderUpload();
-
-
 
             var result = Interface.SaleOrderUpload(token.Token, SelResult);
 

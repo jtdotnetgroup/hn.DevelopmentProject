@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Configuration;
+using System.Linq;
 using hn.ArrowInterface.Entities;
 using hn.ArrowInterface.RequestParams;
 using hn.ArrowInterface.WebCommon;
@@ -32,16 +33,13 @@ namespace hn.ArrowInterface
         /// </summary>
         /// <param name="token"></param>
         /// <returns></returns>
-        public AbsRequestResult<QuerylHInventoryPageResult> QueryLHInventoryPage(string token)
+        public AbsRequestResult<QuerylHInventoryPageResult> QueryLHInventoryPage(string token, QueryLHInventoryPageParam pars)
         {
             var url = GlobParams.QueryLHInventoryPageURL;
-            var dealerCode = ConfigurationManager.AppSettings["dealerCode"];
-
-            var pars = new Dictionary<string, object>();
-            pars.Add("dealerCode", dealerCode);
+            
 
             return BaseRequest<AbsRequestResult<QuerylHInventoryPageResult>, QuerylHInventoryPageResult>(url, token,
-                pars);
+                pars.ToDictionary());
         }
 
         /// <summary>

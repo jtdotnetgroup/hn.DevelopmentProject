@@ -18,9 +18,9 @@ namespace hn.ArrowInterface.Entities
         /// 最后执行时间
         /// </summary>
         [Column("LASTSYNCTIME")]
-        public DateTime LastExecute { get; set; }
+        public DateTime? LastExecute { get; set; }
 
 
-        public string ParasJSON { get; set; }
+        public string ParsJson { get; set; }
     }
 }
