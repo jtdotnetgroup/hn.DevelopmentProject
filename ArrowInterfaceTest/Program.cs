@@ -59,8 +59,8 @@ namespace ArrowInterfaceTest
 
         static void TestQueryPolicy()
         {
-            var token = iInterface.GetToken();
-            var result = iInterface.QueryPolicy(token.Token); 
+            //var token = iInterface.GetToken();
+            //var result = iInterface.QueryPolicy(token.Token); 
         }
 
         static void TestDelete()
