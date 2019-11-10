@@ -33,15 +33,17 @@ namespace hn.ArrowInterface.Jobs
                 postData.Add( new HnObOrderBatchInsertEntityDto(item));
             }
 
+
             var result = Interface.HnObOrderDayBatchInsert(token.Token, postData);
+
+            if (result.Success)
+            {
+                UpdateSyncRecord(null);
+            }
 
             return result.Success;
 
         }
 
-        protected override AbstractRequestParams GetParams()
-        {
-            throw new NotImplementedException();
-        }
     }
 }

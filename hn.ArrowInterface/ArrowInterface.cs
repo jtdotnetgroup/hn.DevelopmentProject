@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Configuration;
 using System.Linq;
+using AutoMapper;
 using hn.ArrowInterface.Entities;
 using hn.ArrowInterface.RequestParams;
 using hn.ArrowInterface.WebCommon;
@@ -24,7 +25,9 @@ namespace hn.ArrowInterface
             pars.Add("username", username);
             pars.Add("password", password);
 
-            return BaseRequest<AuthorizationToken>(GlobParams.ApiLogin, null, pars);
+            var data= BaseRequest<AuthorizationToken>(GlobParams.ApiLogin, null, pars);
+
+            return data;
         }
         /// <summary>
         ///     2、库存下载接口
@@ -41,7 +44,7 @@ namespace hn.ArrowInterface
         /// <param name="token"></param>
         /// <param name="data">上传的日销出库数据</param>
         /// <returns></returns>
-        public AbsRequestResult HnInventoryBatchInsert(string token, List<HnInventoryBatchInsertEntity> data)
+        public AbsRequestResult HnInventoryBatchInsert(string token, List<HnlnventoryBatchInsertEntityDto> data)
         {
             var json = JsonConvert.SerializeObject(data);
             return BaseRequest<AbsRequestResult>(GlobParams.Inventory_BatchInsertURL, token, json);
@@ -109,18 +112,18 @@ namespace hn.ArrowInterface
         /// </summary>
         /// <param name="token"></param>
         /// <returns></returns> 
-        public AbsRequestResult<QueryObPage> QueryObPage(string token,QueryObPageParam pars)
+        public AbsRequestResult<LH_OUTBOUNDORDER> QueryObPage(string token,QueryObPageParam pars)
         {
-            return BaseRequest<AbsRequestResult<QueryObPage>>(GlobParams.QueryObPage, token, pars.ToDictionary()); 
+            return BaseRequest<AbsRequestResult<LH_OUTBOUNDORDER>>(GlobParams.QueryObPage, token, pars.ToDictionary()); 
         }
         /// <summary>
         ///     11、发货车牌号下载
         /// </summary>
         /// <param name="token"></param>
         /// <returns></returns>
-        public AbsRequestResult<bool> obOrderUpload(string token, ObOrderUploadParam pars)
+        public AbsRequestResult obOrderUpload(string token, ObOrderUploadParam pars)
         {
-            return BaseRequest<AbsRequestResult<bool>>(GlobParams.GoodsCarNoDown, token, pars.ToDictionary());
+            return BaseRequest<AbsRequestResult>(GlobParams.GoodsCarNoDown, token, pars);
         }
         /// <summary>
         ///     12、出库单下载

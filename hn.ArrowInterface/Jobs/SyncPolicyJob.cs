@@ -17,22 +17,28 @@ namespace hn.ArrowInterface.Jobs
             //拿请求参数
             var pars = GetParams() as QueryPolicyParam;
             var result = Interface.QueryPolicy(token.Token, pars);
-            foreach (var row in result.Rows.AsParallel())
+            if (result.Success)
             {
-                try
+                Helper.Delete<QueryPolicy>("");
+
+                foreach (var row in result.Rows.AsParallel())
                 {
-                    Helper.Insert(row);
+                    try
+                    {
+                        Helper.Insert(row);
+                    }
+                    catch (Exception e)
+                    {
+                        string msg = string.Format("插入政策记录失败：{0}", JsonConvert.SerializeObject(row));
+                        LogHelper.Info(msg);
+                        LogHelper.Error(e);
+                    }
                 }
-                catch (Exception e)
-                {
-                    string msg = string.Format("插入政策记录失败：{0}", JsonConvert.SerializeObject(row));
-                    LogHelper.Info(msg);
-                    LogHelper.Error(e);
-                }
+                //同步完成，更新请求记录
+                UpdateSyncRecord(pars);
             }
-            //同步完成，更新请求记录
-            UpdateSyncRecord(pars);
-            return true;
+           
+            return result.Success;
         }
 
         protected override AbstractRequestParams GetParams()

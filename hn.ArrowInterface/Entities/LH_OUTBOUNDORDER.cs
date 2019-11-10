@@ -1,40 +1,46 @@
-﻿using System; 
+﻿using System;
+using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema; 
 
 namespace hn.ArrowInterface.Entities
 {
     /// <summary>
-    /// 出库单头
+    /// 物流部开单记录
     /// </summary>
     [Table("LH_OUTBOUNDORDER")]
-    public class QueryObPage
+    public class LH_OUTBOUNDORDER
     {
+        [Key]
         public string lhodoID { get; set; }
         [NotMapped]
         public string lhodoId { get; set; }
         public string lhodoNo { get; set; }
-        public decimal lhtotalNumber { get; set; }
+        public decimal? lhtotalNumber { get; set; }
         public string lhodoType { get; set; }
         public string acctCode { get; set; }
         public string acctName { get; set; }
-        public decimal lhtotalAmount { get; set; }
-        public decimal lhtotalVolume { get; set; }
+        public decimal? lhtotalAmount { get; set; }
+        public decimal? lhtotalVolume { get; set; }
         public string lhdeliveryBase { get; set; }
         public string lhdeliveryMan { get; set; }
         public string lhcontractNo { get; set; }
         public string billAcctName { get; set; }
         public string billAcctCode { get; set; }
-        public decimal lhadvertisingPoint { get; set; }
-        public DateTime lhdeliveryTime { get; set; }
+        public decimal? lhadvertisingPoint { get; set; }
+        public DateTime? lhdeliveryTime { get; set; }
         public string lhplateNo { get; set; }
-        public decimal lhrebatesPoint { get; set; }
+        public decimal? lhrebatesPoint { get; set; }
         public string lHbuType { get; set; }
         public string lhmark { get; set; }
         public string lhorgCode { get; set; }
-        public DateTime attr2 { get; set; }
-        public DateTime attr3 { get; set; }
+        public DateTime? attr2 { get; set; }
+        public DateTime? attr3 { get; set; }
+
+        public decimal? FStatus { get; set; }
+        public string FCarno { get; set; }
+
         [NotMapped]
-        public QueryObPageDetailed[] items { get; set; }
+        public LH_OUTBOUNDORDERDETAILED[] items { get; set; }
         public string KeyId()
         {
             return " AND lhodoID = '" + lhodoID + "'";
@@ -44,7 +50,8 @@ namespace hn.ArrowInterface.Entities
     /// 出库单明细
     /// </summary>
     [Table("LH_OUTBOUNDORDERDETAILED")]
-    public class QueryObPageDetailed {
+    public class LH_OUTBOUNDORDERDETAILED
+    {
         public string lhodoID { get; set; }
         public string lhodoRowID { get; set; }
         public string lhprodCode { get; set; }

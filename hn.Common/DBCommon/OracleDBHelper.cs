@@ -5,10 +5,12 @@ using System.ComponentModel.DataAnnotations.Schema;
 using System.Data;
 using System.Data.Common;
 using System.Linq;
+using System.Reflection;
 using System.Text;
 using Newtonsoft.Json;
 using Oracle.ManagedDataAccess.Client;
 
+[assembly:AssemblyVersion("1.0")]
 namespace hn.Common
 {
     public class OracleDBHelper
@@ -23,6 +25,13 @@ namespace hn.Common
             conn = factory.CreateConnection();
             conn.ConnectionString = conStr;
 
+        }
+
+        public DbConnection GetNewConnection()
+        {
+            var con = factory.CreateConnection();
+            con.ConnectionString = this.conStr;
+            return con;
         }
 
         public DbConnection conn { get; set; }
@@ -219,6 +228,7 @@ namespace hn.Common
             var pis = t.GetProperties();
 
             var keyFieldName = "";
+            PropertyInfo keyPropertyInfo = null;
 
             foreach (var pi in pis)
             {
@@ -226,12 +236,22 @@ namespace hn.Common
                 if (keyAttr)
                 {
                     keyFieldName = pi.Name;
+
+                    //如果属性中有Column特性，则把Column.Name作为键字段名
+                    if (pi.GetCustomAttributes(true).SingleOrDefault(o => o.GetType() == typeof(ColumnAttribute)) is
+                        ColumnAttribute column)
+                        keyFieldName = column.Name;
+
+                    keyPropertyInfo = pi;
+
                     break;
                 }
             }
 
             if (string.IsNullOrEmpty(keyFieldName)) throw new ArgumentException(string.Format("{0}类未指定Key字段", t.Name));
-            var where = string.Format(" AND {0}=:{1}", keyFieldName, keyFieldName);
+
+            var where = string.Format(" AND {0}=:{1}", keyFieldName, keyPropertyInfo.Name);
+
             var sql = GetUpdateSql<T>(where);
 
             var cmd = GetCommand(sql, obj);
@@ -259,27 +279,51 @@ namespace hn.Common
         /// <returns></returns>
         public bool Insert<T>(T obj)
         {
-            var start = DateTime.Now;
             var sql = GetInsertSql<T>();
             var cmd = GetCommand(sql, obj);
             cmd.Connection = conn;
 
             try
             {
-                LogHelper.Info($"插入数据【{typeof(T)}】");
                if(conn.State==ConnectionState.Closed) conn.Open();
 
                var result = cmd.ExecuteNonQuery();
                 conn.Close();
                 
-                LogHelper.Info($"插入完成，耗时【{(DateTime.Now-start).TotalMilliseconds}】毫秒");
-
-
                return result > 0;
             }
             catch (Exception e)
             {
                 LogHelper.Error(e);
+                LogHelper.Info($"数据：{JsonConvert.SerializeObject(obj)}");
+                LogHelper.Info("SQL:" + sql);
+                throw;
+            }
+        }
+
+
+        /// <summary>
+        /// 插入数据，带事务
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="obj"></param>
+        /// <param name="tran"></param>
+        /// <returns></returns>
+        public bool InsertWithTransation<T>(T obj,DbTransaction tran)
+        {
+            var sql = GetInsertSql<T>();
+            var cmd = GetCommand(sql, obj);
+            cmd.Connection = tran.Connection;
+            cmd.Transaction = tran;
+            try
+            {
+                var result = cmd.ExecuteNonQuery();
+                return result > 0;
+            }
+            catch (Exception e)
+            {
+                LogHelper.Error(e);
+                LogHelper.Info($"数据：{JsonConvert.SerializeObject(obj)}");
                 LogHelper.Info("SQL:" + sql);
                 throw;
             }
@@ -328,7 +372,7 @@ namespace hn.Common
             cmd.Connection = conn;
 
             var t = typeof(T);
-            var pis = t.GetProperties().ToList();
+            var pis = t.GetProperties().Where(p=>p.GetCustomAttributes(true).Count(c=>c is NotMappedAttribute)==0).ToList();
 
             pars.ForEach(par =>
             {
@@ -376,6 +420,81 @@ namespace hn.Common
                 throw;
             }
         }
+
+        public int DeleteWithTran<T>(string where,DbTransaction tran)
+        {
+            var t = typeof(T);
+
+            var tableAttr =
+                t.GetCustomAttributes(true)
+                    .FirstOrDefault(p => p.GetType() == typeof(TableAttribute)) as TableAttribute;
+            var tableName = tableAttr.Name;
+
+            var sql = string.Format("DELETE FROM {0} WHERE 1=1 {1}", tableName, where);
+
+            var cmd = factory.CreateCommand();
+            cmd.CommandText = sql;
+            cmd.Connection = tran.Connection;
+            cmd.Transaction = tran;
+
+            try
+            {
+                if (conn.State == ConnectionState.Closed) conn.Open();
+
+                return cmd.ExecuteNonQuery();
+            }
+            catch (Exception e)
+            {
+                LogHelper.Error(e);
+                LogHelper.Info("SQL:" + sql);
+                throw;
+            }
+        }
+
+        public int DeleteWithTran<T>(T obj,DbTransaction tran)
+        {
+            var t = typeof(T);
+            var pis = t.GetProperties().ToList();
+            var tableAttr =
+                t.GetCustomAttributes(true)
+                    .FirstOrDefault(p => p.GetType() == typeof(TableAttribute)) as TableAttribute;
+            var tableName = tableAttr.Name;
+
+            PropertyInfo keyPropertyInfo = pis.SingleOrDefault(p=>p.GetCustomAttributes(true).Count(c=>c is KeyAttribute)==1);
+            if (keyPropertyInfo == null)
+            {
+                throw new ArgumentException(string.Format("{0}类未指定Key字段", t.Name));
+            }
+
+            string keyFieldName = "";
+
+            keyFieldName =keyPropertyInfo.Name;
+
+            if (keyPropertyInfo.GetCustomAttributes(true).SingleOrDefault(o => o.GetType() == typeof(ColumnAttribute)) is
+                ColumnAttribute column)
+                keyFieldName = column.Name;
+
+            var sql =$"DELETE FROM {tableName} WHERE {keyFieldName}=:{keyPropertyInfo.Name}";
+
+            var cmd = GetCommand(sql, obj);
+            cmd.CommandText = sql;
+            cmd.Connection = conn;
+            cmd.Transaction = tran;
+
+            try
+            {
+                if (conn.State == ConnectionState.Closed) conn.Open();
+
+                return cmd.ExecuteNonQuery();
+            }
+            catch (Exception e)
+            {
+                LogHelper.Error(e);
+                LogHelper.Info("SQL:" + sql);
+                throw;
+            }
+        }
+
 
         public DataTable Select(string sql)
         {
@@ -466,7 +585,7 @@ namespace hn.Common
             return result;
         }
 
-        public bool BatchInsert<T>(List<T> data)
+        public bool BatchInsert<T>(List<T> data,DbTransaction tran=null)
         {
             var start = DateTime.Now;
             if (data == null || data.Count == 0) return false;
@@ -485,22 +604,26 @@ namespace hn.Common
             var cmd = GetCommand(sql, data);
 
             cmd.Connection = conn;
-
+            if (tran != null)
+            {
+                cmd.Connection = tran.Connection;
+                cmd.Transaction = tran;
+            }
             try
             {
-                LogHelper.Info($"批量插入数据【{typeof(T).Name}】【{data.Count}】条");
+                //LogHelper.Info($"批量插入数据【{typeof(T).Name}】【{data.Count}】条");
                 if (conn.State == ConnectionState.Closed) conn.Open();
 
                 var result = cmd.ExecuteNonQuery() ;
                 conn.Close();
                 var timespan = DateTime.Now - start;
-                LogHelper.Info($"批量插入完成，耗时【{timespan.TotalMilliseconds}】毫秒");
+                //LogHelper.Info($"批量插入完成，耗时【{timespan.TotalMilliseconds}】毫秒");
                 return result>0;
             }
             catch (Exception e)
             {
                 LogHelper.Error(e);
-                LogHelper.Info($"插入失败数据：\r\n{JsonConvert.SerializeObject(data)}\r\n");
+                LogHelper.Info($"插入失败数据");
                 return false;
             }
         }

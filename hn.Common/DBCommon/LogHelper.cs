@@ -8,18 +8,33 @@ namespace hn.Common
 {
     public class LogHelper
     {
-        private static readonly ILog Logger = LogManager.GetLogger(typeof(LogHelper));
-
+        private static readonly ILog InfoLogger = LogManager.GetLogger("INFO");
+        private static readonly ILog ErrorLogger = LogManager.GetLogger("ERROR");
+        static object lockobj=new object();
         private static TextWriter _textWriter;
 
         public static void Info(string msg)
         {
-            Logger.Info(msg);
+            lock (lockobj)
+            {
+                InfoLogger.Info(msg);
+            }
         }
 
         public static void Error(Exception ex)
         {
-            Logger.Error(ex);
+            lock (lockobj)
+            {
+                ErrorLogger.Error(ex);
+            }
+        }
+
+        public static void Error(string ex)
+        {
+            lock (lockobj)
+            {
+                ErrorLogger.Error(ex);
+            }
         }
 
         public static void Init(TextWriter writer)

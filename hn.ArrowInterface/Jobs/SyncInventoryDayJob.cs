@@ -1,4 +1,8 @@
-﻿using hn.ArrowInterface.Entities;
+﻿using System;
+using System.Collections.Generic;
+using AutoMapper;
+using AutoMapper.Configuration;
+using hn.ArrowInterface.Entities;
 using hn.ArrowInterface.WebCommon;
 
 namespace hn.ArrowInterface.Jobs
@@ -14,11 +18,18 @@ namespace hn.ArrowInterface.Jobs
         {
             var token = GetToken();
 
-            var where=new HnInventoryBatchInsertEntity();
+            var where=new HnInventoryBatchInsertEntity(){FTime = DateTime.Parse("2019-11-02")};
 
-            var data = Helper.GetWhere<HnInventoryBatchInsertEntity>(where);
+            var data = Helper.GetWhere(where);
 
-            var result = Interface.HnInventoryBatchInsert(token.Token, data);
+            var mapper = Mapper.Instance;
+
+            var pars = mapper.Map<List<HnlnventoryBatchInsertEntityDto>>(data);
+
+            var result = Interface.HnInventoryBatchInsert(token.Token, pars);
+
+            if (result.Success)
+                UpdateSyncRecord(null);
 
             return result.Success;
         }

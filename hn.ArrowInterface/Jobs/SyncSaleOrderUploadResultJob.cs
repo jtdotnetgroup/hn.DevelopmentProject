@@ -10,6 +10,7 @@ using System.Configuration;
 
 namespace hn.ArrowInterface.Jobs
 {
+    [Obsolete("不需要定时同步，实时调用的")]
     public class SyncSaleOrderUploadResultJob : AbsJob
     {
         public override bool Sync()
@@ -23,12 +24,15 @@ namespace hn.ArrowInterface.Jobs
                 var tmp = result.item;
                 if (tmp != null)
                 {
+                    var conn = Helper.GetNewConnection();
+                    conn.Open();
+                    var tran = conn.BeginTransaction();
                     try
                     {
                         foreach (var row in tmp.AsParallel())
                         {
-                            Helper.Delete<Order>(row.KeyId());
-                            Helper.Insert(row);
+                            Helper.DeleteWithTran<Order>(row.KeyId(),tran);
+                            Helper.InsertWithTransation(row,tran);
                         }
                     }
                     catch (Exception e)

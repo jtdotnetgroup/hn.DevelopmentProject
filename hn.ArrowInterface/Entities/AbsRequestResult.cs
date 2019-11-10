@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations.Schema;
 
 namespace hn.ArrowInterface.Entities
 {
@@ -19,8 +20,11 @@ namespace hn.ArrowInterface.Entities
     /// </summary>
     public  class AbsRequestResult
     {
+        [NotMapped]
         public string Message { get; set; }
+        [NotMapped]
         public int Total { get; set; }
+        [NotMapped]
         public bool Success { get; set; }
     } 
     /// <summary>

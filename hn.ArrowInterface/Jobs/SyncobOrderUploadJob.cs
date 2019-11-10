@@ -1,7 +1,10 @@
-﻿ using System;
- using hn.ArrowInterface.RequestParams;
- using hn.ArrowInterface.WebCommon;
- using hn.Common;
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using hn.ArrowInterface.Entities;
+using hn.ArrowInterface.RequestParams;
+using hn.ArrowInterface.WebCommon;
+using hn.Common;
 using Newtonsoft.Json;
 
 namespace hn.ArrowInterface.Jobs
@@ -11,38 +14,40 @@ namespace hn.ArrowInterface.Jobs
     {
         protected override AbstractRequestParams GetParams()
         {
-            throw new NotImplementedException();
+            var where = new LH_OUTBOUNDORDER() { FStatus = 1 };
+            var bills = Helper.GetWhere(where).FirstOrDefault();
+            if (bills == null)
+            {
+                return null;
+            }
+
+            ObOrderUploadParam pars = new ObOrderUploadParam() { lhodoID = bills.lhodoID, lhplateNo = bills.FCarno };
+
+            return pars;
         }
+
 
         public override bool Sync()
         {
             var token = GetToken();
+            var where = new LH_OUTBOUNDORDER() { FStatus = 1 };
+            var bills = Helper.GetWhere(where);
 
-            var pars=new ObOrderUploadParam();
-
-
-            var result = Interface.obOrderUpload(token.Token,pars);
-
-            if (result.Success)
+            foreach (var bill in bills)
             {
-                foreach (var row in result.Rows)
+                ObOrderUploadParam pars = new ObOrderUploadParam() { lhodoID = bill.lhodoID, lhplateNo = $"{bill.FCarno}-{DateTime.Now.Millisecond}" };
+                
+                var result = Interface.obOrderUpload(token.Token, pars);
+
+                if (result.Success)
                 {
-                    try
-                    {
-                         
-                    }
-                    catch (Exception e)
-                    {
-                        string message = string.Format("发货车牌号下载失败：{0}", JsonConvert.SerializeObject(row));
-                        LogHelper.Info(message);
-                        LogHelper.Error(e);
-                    }
+                    bill.FStatus = 2;
+                    bill.FCarno = pars.lhplateNo;
+                    Helper.Update(bill);
                 }
-
-                return true;
             }
+            return true;
 
-            return false;
         }
     }
 }

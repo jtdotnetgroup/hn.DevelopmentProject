@@ -27,15 +27,15 @@ namespace hn.ArrowInterface.Entities
         public string balanceName { get; set; }
         public string status { get; set; }
         public string orderProdLine { get; set; }
-        public DateTime lHexpectedArrivedDate { get; set; }
+        public DateTime? lHexpectedArrivedDate { get; set; }
         public string source { get; set; }
         public string lHbuType { get; set; }
-        public DateTime submissionDate { get; set; }
+        public DateTime? submissionDate { get; set; }
         public string lHcusSelfNo { get; set; }
         public string lHreviweStatus { get; set; }
         public string productPeopleName { get; set; }
         public string lHpromotionPolicy { get; set; }
-        public DateTime lHdiscountEndTime { get; set; }
+        public DateTime? lHdiscountEndTime { get; set; }
         public string OBBalance { get; set; }
         public string lHcontractNo { get; set; }
         public string lHprojectName { get; set; }
@@ -55,8 +55,8 @@ namespace hn.ArrowInterface.Entities
         public string lHDeliRequire { get; set; }
         public string lHRequestRequire { get; set; }
         public string lHManAdvice { get; set; } 
-        public DateTime attr2 { get; set; }
-        public DateTime attr3 { get; set; }
+        public DateTime? attr2 { get; set; }
+        public DateTime? attr3 { get; set; }
         [NotMapped]
         public SaleOrderDetailed[] saleOrderItemList { get; set; }
         public string KeyId()
@@ -84,7 +84,7 @@ namespace hn.ArrowInterface.Entities
         public string lHprodLine { get; set; }
         public string lHmodel { get; set; }
         public string CRMcomments { get; set; }
-        public DateTime itemDeliveryDate { get; set; }
+        public DateTime? itemDeliveryDate { get; set; }
         public decimal lHdealerPrice { get; set; }
         public decimal lHfinalDiscount { get; set; }
         public decimal lHDiscountPrice { get; set; }
@@ -99,7 +99,7 @@ namespace hn.ArrowInterface.Entities
         public double lHToVolume { get; set; }
         public double lHProdToWight { get; set; }
         public string lHprodUnit { get; set; }
-        public DateTime lHrowcreatedDate { get; set; }
+        public DateTime? lHrowcreatedDate { get; set; }
         public string lHProductionNumber { get; set; }
         public string lHproductStatus { get; set; }
         public string lHvalidateorNot { get; set; }

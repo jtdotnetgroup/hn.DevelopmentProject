@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Configuration;
+using System.Data;
 using System.Linq;
 using hn.ArrowInterface.Entities;
 using hn.ArrowInterface.RequestParams;
@@ -18,26 +19,43 @@ namespace hn.ArrowInterface.Jobs
             var pars = GetParams() as QueryObPageParam;
             var result = Interface.QueryObPage(token.Token,pars);
 
-            if (result.Success)
+            if (result!=null&&result.Success)
             {
                 foreach (var row in result.Rows)
                 {
-                    try
+                    //事务不允许并发，锁定数据库连接
+                    lock (Helper)
                     {
-                        Helper.Delete<QueryObPage>(row.KeyId());
-                        Helper.Delete<QueryObPageDetailed>(row.KeyId());
-                        Helper.Insert(row);
-                        foreach (var item in row.items) {
-                            Helper.Insert(item);
+                        var conn = Helper.GetNewConnection();
+                        conn.Open();
+                        var tran = conn.BeginTransaction();
+                        try
+                        {
+                            Helper.DeleteWithTran<LH_OUTBOUNDORDER>(row.KeyId(), tran);
+                            Helper.DeleteWithTran<LH_OUTBOUNDORDERDETAILED>(row.KeyId(), tran);
+                            Helper.InsertWithTransation(row, tran);
+                            foreach (var item in row.items)
+                            {
+                                Helper.InsertWithTransation(item, tran);
+                            }
+
+                            //主从表均插入结束，提交事务
+                            tran.Commit();
+                            //关闭连接，下一条主表记录开启新的事务
+                        }
+                        catch (Exception e)
+                        {
+                            //发生异常，回滚事务
+                            tran.Rollback();
+                            tran.Connection.Close();
+                            string message = string.Format("物流部开单记录下载：{0}", JsonConvert.SerializeObject(row));
+                            LogHelper.Info(message);
+                            LogHelper.Error(e);
                         }
                     }
-                    catch (Exception e)
-                    {
-                        string message = string.Format("物流部开单记录下载：{0}", JsonConvert.SerializeObject(row));
-                        LogHelper.Info(message);
-                        LogHelper.Error(e);
-                    }
                 }
+
+                UpdateSyncRecord(pars);
 
                 return true;
             }
@@ -62,7 +80,7 @@ namespace hn.ArrowInterface.Jobs
             }
             else
             {
-                var attrs = JsonConvert.DeserializeAnonymousType(jobRecord.ParasJSON,
+                var attrs = JsonConvert.DeserializeAnonymousType(jobRecord.ParsJson,
                     new { attr1 = "", attr2 = "", attr3 = "" });
                 //如果已存在同步历史，取上一次同步参数的结束时间再往前5分钟作为本次同步的开始时间
                 pars.attr2 = DateTime.Parse(attrs.attr3).AddMinutes(-5).ToString(DateTimeFormat);

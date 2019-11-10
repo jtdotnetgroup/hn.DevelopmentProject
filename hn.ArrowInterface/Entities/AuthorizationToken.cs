@@ -8,7 +8,7 @@ namespace hn.ArrowInterface.Entities
     /// 此类为写入数据库用，用于把请求到的Token保存
     /// </summary>
     [Table("LH_AuthorizationToken")]
-    public class AuthorizationToken
+    public class AuthorizationToken: AbsRequestResult
     {
             //有效时长为2小时
             public  DateTime ExpiredTime { get; set; }

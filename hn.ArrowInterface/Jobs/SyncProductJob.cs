@@ -37,7 +37,7 @@ namespace hn.ArrowInterface.Jobs
                 var attrs = JsonConvert.DeserializeAnonymousType(jobRecord.ParsJson,
                     new { attr1 = "", attr2 = "", attr3 = "" });
                 //如果已存在同步历史，取上一次同步参数的结束时间再往前5分钟作为本次同步的开始时间
-                pars.attr1 = DateTime.Parse(attrs.attr3).AddMinutes(-5).ToString(DateTimeFormat);
+                pars.attr2 = DateTime.Parse(attrs.attr3).AddMinutes(-5).ToString(DateTimeFormat);
             }
 
             pars.attr3 = DateTime.Now.ToString(DateTimeFormat);
@@ -58,7 +58,7 @@ namespace hn.ArrowInterface.Jobs
             if (result.Success)
             {
                 //批量插入数据，单次插入量，此值不宜过大，太大反而会降低效率，最佳值在100-500
-                int size = 50;
+                int size = 100;
                 //插入次数，用数据总条数除以单次插入量得出
                 var insertTime = result.Rows.Count / size;
                 //如数据总条数对单次插入量求余结果大于0，则插入次数+1

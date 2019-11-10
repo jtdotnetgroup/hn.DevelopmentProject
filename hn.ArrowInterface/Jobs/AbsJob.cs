@@ -64,29 +64,8 @@ namespace hn.ArrowInterface.Jobs
 
         public AuthorizationToken GetToken()
         {
-            //从数据库读取Token值
-            var token=Helper.GetAll<AuthorizationToken>().FirstOrDefault();
-            if (token != null)
-            {
-                //判断TOKEN是否过期
-                if (token.ExpiredTime <= DateTime.Now)
-                {
-                    //过期重新获取Token并更新数据库值
-                    var newtoken = Interface.GetToken();
-                    newtoken.ExpiredTime=DateTime.Now.AddHours(2);
-                    //token.Token = newtoken.Token;
-                    Helper.Update(newtoken, string.Format(" AND TokenValue='{0}'",token.Token));
-                }
-
-                return token;
-            }
-            //数据库不存在Token，获取并插入
-            token = Interface.GetToken();
-            token.ExpiredTime = DateTime.Now.AddHours(2);
-
-            Helper.Insert(token);
-
-            return token;
+            //请求Token
+            return CommonToken.GetToken();
         }
 
         public abstract bool Sync();
@@ -97,13 +76,18 @@ namespace hn.ArrowInterface.Jobs
             where.JobClassName = this.JobName;
             var jobRecord = Helper.GetWhere(where).SingleOrDefault();
 
-            if (jobRecord.LastExecute != null && (jobRecord != null&&( DateTime.Now-jobRecord.LastExecute.Value).TotalMinutes<Interval))
+            if (jobRecord!=null&&jobRecord.LastExecute != null && (jobRecord != null&&( DateTime.Now-jobRecord.LastExecute.Value).TotalMinutes<Interval))
             {
                 //未达到设定同步间隔
+                LogHelper.Info($"【{this.JobName}】同步时间未到");
                 return;
             }
 
+            LogHelper.Info($"作业开始：【{this.JobName}】");
+            var start = DateTime.Now;
             Sync();
+            var end = DateTime.Now - start;
+            LogHelper.Info($"作业结束：【{this.JobName}】，耗时【{end.TotalMilliseconds}】毫秒");
         }
 
 
