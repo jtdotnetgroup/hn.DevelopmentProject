@@ -54,17 +54,17 @@ namespace hn.ArrowInterface.WebCommon
             LogHelper.Info($"开始请求：{url}");
             if (Method == "POST")
             {
-                res = client.PostAsync(url, content).Result;
+                res = client.PostAsync(url, content).GetAwaiter().GetResult();
             }
             else
             {
                 url += "?";
                 foreach (var item in pars) url += item.Key + "=" + item.Value + "&";
                 url += "k=1";
-                res = client.GetAsync(url).Result;
+                res = client.GetAsync(url).GetAwaiter().GetResult();
             }
 
-            var resultStr = res.Content.ReadAsStringAsync().Result;
+            var resultStr = res.Content.ReadAsStringAsync().GetAwaiter().GetResult();
 
             var result = JsonConvert.DeserializeObject<T>(resultStr);
 
@@ -86,12 +86,11 @@ namespace hn.ArrowInterface.WebCommon
 
             try
             {
-                res = client.PostAsync(url, content).Result;
+                res = client.PostAsync(url, content).GetAwaiter().GetResult();
 
                 var resultStr = res.Content.ReadAsStringAsync();
 
-
-                result = JsonConvert.DeserializeObject<T>(res.Content.ReadAsStringAsync().Result);
+                result = JsonConvert.DeserializeObject<T>(res.Content.ReadAsStringAsync().GetAwaiter().GetResult());
                 LogHelper.Info($"请求完成:{url}");
             }
             catch (AggregateException ex)

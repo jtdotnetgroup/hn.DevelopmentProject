@@ -19,8 +19,9 @@ namespace ArrowInterfaceTest
 
 
             LogHelper.Init(Console.Out);
-            //TestSyncobOrderUploadJob();
-            TestSaleOrderJob();
+            //TestScheedule();
+            TestSyncobOrderUploadJob();
+            //TestSaleOrderJob();
             //TestInventoryJob();
             //SyncSchedule schedule=new SyncSchedule();
             //schedule.DoWork();
@@ -42,6 +43,12 @@ namespace ArrowInterfaceTest
             //TestQueryProdPage();
             Console.WriteLine("OK");
             Console.ReadKey();
+        }
+
+        static void TestScheedule()
+        {
+            SyncSchedule schedule=new SyncSchedule();
+            schedule.DoWork();
         }
 
         static void TestLogin()

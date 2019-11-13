@@ -72,7 +72,7 @@ namespace hn.ArrowInterface.Jobs
             pars.dealerCode = ConfigurationManager.AppSettings["dealerCode"];
             if (jobRecord == null)
             {
-                pars.attr2 = "2019-01-02 10:28:54";
+                pars.attr2 = "2019-09-02 10:28:54";
 
                 jobRecord = new SyncJob_Definition();
                 jobRecord.JobClassName = this.JobName;
